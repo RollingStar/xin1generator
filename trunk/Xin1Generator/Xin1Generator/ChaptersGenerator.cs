@@ -3,6 +3,8 @@ using System.Xml.Linq;
 
 namespace Xin1Generator {
     class ChaptersGenerator {
+        private const string timeFormat = @"hh\:mm\:ss\.fff";
+
         public XDocument document { get; private set; }
         private XElement root, currentEdition;
         private Random random = new Random();
@@ -34,8 +36,8 @@ namespace Xin1Generator {
             currentEdition.Add(
                 new XElement("ChapterAtom",
                     new XElement("ChapterUID", random.Next()),
-                    new XElement("ChapterTimeStart", start.ToString()),
-                    new XElement("ChapterTimeEnd", end.ToString()),
+                    new XElement("ChapterTimeStart", start.ToString(timeFormat)),
+                    new XElement("ChapterTimeEnd", end.ToString(timeFormat)),
                     new XElement("ChapterFlagHidden", hideChapters ? 1 : 0),
                     new XElement("ChapterFlagEnabled", 1)));
         }
