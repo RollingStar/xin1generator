@@ -4,7 +4,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 namespace Xin1Generator {
-    class XportWrapper {
+    static class XportWrapper {
         public const string processFileName = "xport";
 
         public static Process process = new Process {
@@ -17,7 +17,9 @@ namespace Xin1Generator {
         };
 
         public static int GetFrameCount(string workingDirectory, string path) {
-            Console.WriteLine(' ' + Path.GetFileName(path));
+            Trace.Indent();
+            Trace.WriteLine(Path.GetFileName(path));
+            Trace.Unindent();
 
             process.StartInfo.Arguments = "-psh \"" + path + "\" 1 1 0";
             process.StartInfo.WorkingDirectory = workingDirectory;
@@ -27,7 +29,7 @@ namespace Xin1Generator {
 
             Match frameCountMatch = Regex.Match(output, @"coded pictures = (\d+)");
 
-            if (frameCountMatch.Value == string.Empty)
+            if (string.IsNullOrEmpty(frameCountMatch.Value))
                 throw new InvalidOperationException(
                     "Could not determine frame count of " + path);
 

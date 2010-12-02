@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -13,7 +14,8 @@ namespace Xin1Generator {
 
         public static void Main(string[] args) {
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
-            Console.WriteLine(assemblyName.Name + " v" + assemblyName.Version.ToString(2));
+            Console.WriteLine(Properties.Resources.NameAndVersionFormat,
+                assemblyName.Name, assemblyName.Version.ToString(2));
 
             try {
                 foreach (string dependency in new string[] { "eac3to", "xport" }) {
@@ -31,33 +33,34 @@ namespace Xin1Generator {
                 }
 
                 Parameters p = new Parameters() {
-                    titleNames = new string[0],
-                    inPath = Directory.GetCurrentDirectory(),
-                    outPath = Directory.GetCurrentDirectory(),
-                    demuxTracks = false,
-                    hideChapters = false
+                    TitleNumbers = new List<string>(),
+                    TitleNames = new List<string>(),
+                    InPath = Directory.GetCurrentDirectory(),
+                    OutPath = Directory.GetCurrentDirectory(),
+                    DemuxTracks = false,
+                    HideChapters = false
                 };
 
                 for (int i = 0; i < args.Length; i++) {
                     try {
                         switch (args[i]) {
                             case "-t":
-                                p.titleNumbers = args[++i].Split(',');
+                                p.TitleNumbers.AddRange(args[++i].Split(','));
                                 break;
                             case "-n":
-                                p.titleNames = args[++i].Split(',');
+                                p.TitleNames.AddRange(args[++i].Split(','));
                                 break;
                             case "-i":
-                                p.inPath = args[++i];
+                                p.InPath = args[++i];
                                 break;
                             case "-o":
-                                p.outPath = args[++i];
+                                p.OutPath = args[++i];
                                 break;
                             case "-d":
-                                p.demuxTracks = true;
+                                p.DemuxTracks = true;
                                 break;
                             case "-h":
-                                p.hideChapters = true;
+                                p.HideChapters = true;
                                 break;
                             default:
                                 throw new ParameterException(
@@ -69,10 +72,10 @@ namespace Xin1Generator {
                     }
                 }
 
-                if (p.titleNumbers == null)
+                if (p.TitleNumbers.Count == 0)
                     throw new ParameterException("Title numbers not specified");
 
-                foreach (string dir in new string[] { p.inPath, p.outPath })
+                foreach (string dir in new string[] { p.InPath, p.OutPath })
                     if (!Directory.Exists(dir))
                         throw new DirectoryNotFoundException(
                             "Could not find directory " + dir);
@@ -84,33 +87,18 @@ namespace Xin1Generator {
                 xin1Generator.GenerateAll(chaptersName, tagsName, qpfileName, demuxName);
             } catch (ParameterException e) {
                 Console.WriteLine();
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine(Properties.Resources.ErrorPrefix + e.Message);
                 Console.WriteLine();
                 PrintUsage();
             } catch (Exception e) {
                 Console.WriteLine();
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine(Properties.Resources.ErrorPrefix + e.Message);
             }
         }
 
         public static void PrintUsage() {
-            Console.WriteLine("Usage:");
-            Console.WriteLine(" " + Environment.GetCommandLineArgs()[0] +
-                " -t <titles> [-n <names>] [-i <input>] [-o <output>] [-d] [-h]");
-            Console.WriteLine();
-            Console.WriteLine("Parameters:");
-            Console.WriteLine(" -t   " +
-                "Comma-separated list of title numbers as shown by eac3to. Example: 2,1.");
-            Console.WriteLine(" -n   " +
-                "Comma-seperated list of title names. Example: \"Edition 1,Edition 2\".");
-            Console.WriteLine(" -i   " +
-                "Path to Blu-ray source disc. Default: current directory.");
-            Console.WriteLine(" -o   " +
-                "Path to destination directory. Default: current directory.");
-            Console.WriteLine(" -d   " +
-                "Demux tracks immediately instead of writing the command for it to a file.");
-            Console.WriteLine(" -h   " +
-                "Set chapters to hidden. Prevents overly long chapter lists.");
+            Console.WriteLine(Properties.Resources.UsageText,
+                Environment.GetCommandLineArgs()[0]);
         }
     }
 }

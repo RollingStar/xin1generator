@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
 namespace Xin1Generator {
-    class Eac3toWrapper {
+    static class Eac3toWrapper {
         public const string processFileName = "eac3to";
 
         private static Process process = new Process {
@@ -60,22 +59,25 @@ namespace Xin1Generator {
             process.Start();
 
             string line;
-            bool isAnalyzing = false;
-            string percentage = string.Empty;
+            bool isAnalyzing = true;
+
+            Trace.Indent();
 
             while (!string.IsNullOrEmpty(line = process.StandardOutput.ReadLine())) {
                 if (!line.EndsWith("%"))
                     continue;
 
+                // Add newline after analyzing
                 if (isAnalyzing != (isAnalyzing = line.StartsWith("analyze")))
-                    Console.Write( // Don't insert a newline before the first line
-                        (string.IsNullOrEmpty(percentage) ? string.Empty : "\n") +
-                        ' ' + (isAnalyzing ? "Analyzing" : "Processing") + ": ");
-                else // Overwrite previous percentage
-                    Console.Write(new string('\b', percentage.Length));
+                    Trace.WriteLine(string.Empty);
 
-                Console.Write(percentage = line.Substring(line.IndexOf(' ') + 1));
+                // Overwrite current line
+                Trace.Write('\r' + new string(' ', Trace.IndentSize) +
+                    (isAnalyzing ? "Analyzing" : "Processing") + ": " +
+                    line.Substring(line.IndexOf(' ') + 1));
             }
+
+            Trace.Unindent();
 
             process.WaitForExit();
         }

@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 
 namespace Xin1Generator {
-    class Xin1Generator {
+    public class Xin1Generator {
         private Parameters p;
 
         private List<Title> titles = new List<Title>();
@@ -15,12 +16,12 @@ namespace Xin1Generator {
         }
 
         public void ExtractInfo() {
-            Console.WriteLine("Extracting info...");
+            Trace.WriteLine("Extracting info...");
 
-            IDictionary<string, Title> allTitles = Eac3toWrapper.GetTitles(p.inPath);
+            IDictionary<string, Title> allTitles = Eac3toWrapper.GetTitles(p.InPath);
             int offset = frames[0];
 
-            foreach (string titleNumber in p.titleNumbers) {
+            foreach (string titleNumber in p.TitleNumbers) {
                 if (!allTitles.ContainsKey(titleNumber))
                     throw new InvalidOperationException("Could not find title " + titleNumber);
 
@@ -35,7 +36,7 @@ namespace Xin1Generator {
                         throw new FileNotFoundException("Could not find file " + file);
 
                     files.Add(file);
-                    frames.Add(offset += XportWrapper.GetFrameCount(p.outPath, file));
+                    frames.Add(offset += XportWrapper.GetFrameCount(p.OutPath, file));
                 }
             }
         }
@@ -48,9 +49,9 @@ namespace Xin1Generator {
         }
 
         public void GenerateChaptersAndTags(string chaptersName, string tagsName) {
-            Console.WriteLine("Generating chapters and tags...");
+            Trace.WriteLine("Generating chapters and tags...");
 
-            ChaptersGenerator chaptersGenerator = new ChaptersGenerator(p.hideChapters);
+            ChaptersGenerator chaptersGenerator = new ChaptersGenerator(p.HideChapters);
             TagsGenerator tagsGenerator = new TagsGenerator();
 
             for (int i = 0; i < titles.Count; i++) {
@@ -65,30 +66,30 @@ namespace Xin1Generator {
                 }
 
                 tagsGenerator.CreateTag(editionUID,
-                    p.titleNames.Length > i ? p.titleNames[i] : "Edition " + (i + 1));
+                    p.TitleNames.Count > i ? p.TitleNames[i] : "Edition " + (i + 1));
             }
 
-            chaptersGenerator.document.Save(Path.Combine(p.outPath, chaptersName));
-            tagsGenerator.document.Save(Path.Combine(p.outPath, tagsName));
+            chaptersGenerator.document.Save(Path.Combine(p.OutPath, chaptersName));
+            tagsGenerator.document.Save(Path.Combine(p.OutPath, tagsName));
         }
 
         public void GenerateQpfile(string qpfileName) {
-            Console.WriteLine("Generating qpfile...");
+            Trace.WriteLine("Generating qpfile...");
 
-            using (StreamWriter sw = new StreamWriter(Path.Combine(p.outPath, qpfileName)))
+            using (StreamWriter sw = new StreamWriter(Path.Combine(p.OutPath, qpfileName)))
                 for (int i = 1; i < files.Count; i++) // We don't need the first and last frame
                     sw.WriteLine(frames[i] + " I"); // Format: <frame> <type>
         }
 
         public void GenerateTracksOrCommand(string demuxName) {
-            Console.WriteLine("Generating " + (p.demuxTracks ? "tracks" : "command") + "...");
+            Trace.WriteLine("Generating " + (p.DemuxTracks ? "tracks" : "command") + "...");
 
             string arguments = "\"" + string.Join("\"+\"", files.ToArray()) + "\" -demux";
 
-            if (p.demuxTracks)
-                Eac3toWrapper.WriteTracks(p.outPath, arguments);
+            if (p.DemuxTracks)
+                Eac3toWrapper.WriteTracks(p.OutPath, arguments);
             else
-                using (StreamWriter sw = new StreamWriter(Path.Combine(p.outPath, demuxName)))
+                using (StreamWriter sw = new StreamWriter(Path.Combine(p.OutPath, demuxName)))
                     sw.Write(Eac3toWrapper.processFileName + " " + arguments);
         }
     }
