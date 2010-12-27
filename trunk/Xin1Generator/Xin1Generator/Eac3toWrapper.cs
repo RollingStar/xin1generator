@@ -17,7 +17,7 @@ namespace Xin1Generator {
             }
         };
 
-        public static IDictionary<string, Title> GetTitles(string workingDirectory) {
+        public static IDictionary<int, Title> GetTitles(string workingDirectory) {
             process.StartInfo.WorkingDirectory = workingDirectory;
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
@@ -26,7 +26,7 @@ namespace Xin1Generator {
             MatchCollection matches = Regex.Matches(output,
                 @"(\d+)\) \d+.+?(\S+(\.\w+)).+?([pi])(\d+)(?: \/(\d+\.\d+))?",
                 RegexOptions.Singleline);
-            IDictionary<string, Title> titles = new Dictionary<string, Title>();
+            IDictionary<int, Title> titles = new Dictionary<int, Title>();
 
             foreach (Match match in matches) {
                 var title = new Title() { files = new List<string>() };
@@ -47,7 +47,7 @@ namespace Xin1Generator {
                 // Treat 2 fields as 1 frame (does this actually work?)
                 title.frameRate = num / den * (match.Groups[4].Value == "i" ? 2 : 1);
 
-                titles.Add(match.Groups[1].Value, title);
+                titles.Add(int.Parse(match.Groups[1].Value), title);
             }
 
             return titles;
