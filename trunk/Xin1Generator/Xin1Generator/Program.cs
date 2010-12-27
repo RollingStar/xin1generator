@@ -18,7 +18,7 @@ namespace Xin1Generator {
                 assemblyName.Name, assemblyName.Version.ToString(2));
 
             try {
-                foreach (string dependency in new string[] { "eac3to", "xport" }) {
+                foreach (string dependency in new[] { "eac3to", "xport" }) {
                     try {
                         new Process {
                             StartInfo = {
@@ -32,7 +32,7 @@ namespace Xin1Generator {
                     }
                 }
 
-                Parameters p = new Parameters() {
+                var p = new Parameters() {
                     TitleNumbers = new List<string>(),
                     TitleNames = new List<string>(),
                     InPath = Directory.GetCurrentDirectory(),
@@ -75,14 +75,14 @@ namespace Xin1Generator {
                 if (p.TitleNumbers.Count == 0)
                     throw new ParameterException("Title numbers not specified");
 
-                foreach (string dir in new string[] { p.InPath, p.OutPath })
+                foreach (string dir in new[] { p.InPath, p.OutPath })
                     if (!Directory.Exists(dir))
                         throw new DirectoryNotFoundException(
                             "Could not find directory " + dir);
 
                 Console.WriteLine();
 
-                Xin1Generator xin1Generator = new Xin1Generator(p);
+                var xin1Generator = new Xin1Generator(p);
                 xin1Generator.ExtractInfo();
                 xin1Generator.GenerateAll(chaptersName, tagsName, qpfileName, demuxName);
             } catch (ParameterException e) {

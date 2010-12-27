@@ -29,11 +29,11 @@ namespace Xin1Generator {
             IDictionary<string, Title> titles = new Dictionary<string, Title>();
 
             foreach (Match match in matches) {
-                Title title = new Title() { files = new List<string>() };
+                var title = new Title() { files = new List<string>() };
 
                 string ext = match.Groups[3].Value;
                 string files = match.Groups[2].Value
-                    .Replace(ext, string.Empty).Trim(new char[] { '[', ']' });
+                    .Replace(ext, string.Empty).Trim(new[] { '[', ']' });
 
                 foreach (string file in files.Split('+'))
                     title.files.Add(Path.Combine(workingDirectory,
