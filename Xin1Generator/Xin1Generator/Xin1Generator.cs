@@ -18,14 +18,14 @@ namespace Xin1Generator {
         public void ExtractInfo() {
             Trace.WriteLine("Extracting info...");
 
-            IDictionary<string, Title> allTitles = Eac3toWrapper.GetTitles(p.InPath);
+            IDictionary<int, Title> allTitles = Eac3toWrapper.GetTitles(p.InPath);
             int offset = frames[0];
 
-            foreach (string titleNumber in p.TitleNumbers)
+            foreach (int titleNumber in p.TitleNumbers)
                 if (!allTitles.ContainsKey(titleNumber))
                     throw new InvalidOperationException("Could not find title " + titleNumber);
 
-            foreach (string titleNumber in p.TitleNumbers) {
+            foreach (int titleNumber in p.TitleNumbers) {
                 Title title = allTitles[titleNumber];
                 titles.Add(title);
 

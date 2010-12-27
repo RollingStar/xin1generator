@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Xin1Generator {
@@ -33,7 +34,7 @@ namespace Xin1Generator {
                 }
 
                 var p = new Parameters() {
-                    TitleNumbers = new List<string>(),
+                    TitleNumbers = new List<int>(),
                     TitleNames = new List<string>(),
                     InPath = Directory.GetCurrentDirectory(),
                     OutPath = Directory.GetCurrentDirectory(),
@@ -45,7 +46,8 @@ namespace Xin1Generator {
                     try {
                         switch (args[i]) {
                             case "-t":
-                                p.TitleNumbers.AddRange(args[++i].Split(','));
+                                p.TitleNumbers.AddRange(args[++i].Split(',')
+                                    .Select(x => int.Parse(x)));
                                 break;
                             case "-n":
                                 p.TitleNames.AddRange(args[++i].Split(','));
