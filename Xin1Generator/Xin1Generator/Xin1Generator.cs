@@ -21,10 +21,11 @@ namespace Xin1Generator {
             IDictionary<string, Title> allTitles = Eac3toWrapper.GetTitles(p.InPath);
             int offset = frames[0];
 
-            foreach (string titleNumber in p.TitleNumbers) {
+            foreach (string titleNumber in p.TitleNumbers)
                 if (!allTitles.ContainsKey(titleNumber))
                     throw new InvalidOperationException("Could not find title " + titleNumber);
 
+            foreach (string titleNumber in p.TitleNumbers) {
                 Title title = allTitles[titleNumber];
                 titles.Add(title);
 
@@ -51,8 +52,8 @@ namespace Xin1Generator {
         public void GenerateChaptersAndTags(string chaptersName, string tagsName) {
             Trace.WriteLine("Generating chapters and tags...");
 
-            ChaptersGenerator chaptersGenerator = new ChaptersGenerator(p.HideChapters);
-            TagsGenerator tagsGenerator = new TagsGenerator();
+            var chaptersGenerator = new ChaptersGenerator(p.HideChapters);
+            var tagsGenerator = new TagsGenerator();
 
             for (int i = 0; i < titles.Count; i++) {
                 Title title = titles[i];
@@ -76,7 +77,7 @@ namespace Xin1Generator {
         public void GenerateQpfile(string qpfileName) {
             Trace.WriteLine("Generating qpfile...");
 
-            using (StreamWriter sw = new StreamWriter(Path.Combine(p.OutPath, qpfileName)))
+            using (var sw = new StreamWriter(Path.Combine(p.OutPath, qpfileName)))
                 for (int i = 1; i < files.Count; i++) // We don't need the first and last frame
                     sw.WriteLine(frames[i] + " I"); // Format: <frame> <type>
         }
@@ -89,7 +90,7 @@ namespace Xin1Generator {
             if (p.DemuxTracks)
                 Eac3toWrapper.WriteTracks(p.OutPath, arguments);
             else
-                using (StreamWriter sw = new StreamWriter(Path.Combine(p.OutPath, demuxName)))
+                using (var sw = new StreamWriter(Path.Combine(p.OutPath, demuxName)))
                     sw.Write(Eac3toWrapper.processFileName + " " + arguments);
         }
     }
