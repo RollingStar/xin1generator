@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
 
 namespace Xin1Generator {
-    public struct Parameters {
-        public List<int> TitleNumbers;
-        public List<string> TitleNames;
-        public string InPath, OutPath;
-        public bool DemuxTracks, HideChapters;
+    public class Parameters {
+        public readonly List<int> TitleNumbers = new List<int>();
+        public readonly List<string> TitleNames = new List<string>();
+        public string InputPath, OutputPath;
+        public bool DemuxTracks = false;
+        public bool HideChapters = false;
     }
 }

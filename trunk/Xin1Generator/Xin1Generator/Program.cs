@@ -14,6 +14,9 @@ namespace Xin1Generator {
         private const string demuxName = "demux.cmd";
 
         public static void Main(string[] args) {
+            Trace.Listeners.Add(new ConsoleTraceListener());
+            Trace.IndentSize = 1;
+
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
             Console.WriteLine(Properties.Resources.NameAndVersionFormat,
                 assemblyName.Name, assemblyName.Version.ToString(2));
@@ -33,13 +36,9 @@ namespace Xin1Generator {
                     }
                 }
 
-                var p = new Parameters() {
-                    TitleNumbers = new List<int>(),
-                    TitleNames = new List<string>(),
-                    InPath = Directory.GetCurrentDirectory(),
-                    OutPath = Directory.GetCurrentDirectory(),
-                    DemuxTracks = false,
-                    HideChapters = false
+                var p = new Parameters {
+                    InputPath = Directory.GetCurrentDirectory(),
+                    OutputPath = Directory.GetCurrentDirectory()
                 };
 
                 for (int i = 0; i < args.Length; i++) {
@@ -53,10 +52,10 @@ namespace Xin1Generator {
                                 p.TitleNames.AddRange(args[++i].Split(','));
                                 break;
                             case "-i":
-                                p.InPath = args[++i];
+                                p.InputPath = args[++i];
                                 break;
                             case "-o":
-                                p.OutPath = args[++i];
+                                p.OutputPath = args[++i];
                                 break;
                             case "-d":
                                 p.DemuxTracks = true;
@@ -77,7 +76,7 @@ namespace Xin1Generator {
                 if (p.TitleNumbers.Count == 0)
                     throw new ParameterException("Title numbers not specified");
 
-                foreach (string dir in new[] { p.InPath, p.OutPath })
+                foreach (string dir in new[] { p.InputPath, p.OutputPath })
                     if (!Directory.Exists(dir))
                         throw new DirectoryNotFoundException(
                             "Could not find directory " + dir);
