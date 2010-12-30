@@ -7,13 +7,11 @@ namespace Xin1Generator {
     static class XportWrapper {
         public const string processFileName = "xport";
 
-        public static Process process = new Process {
-            StartInfo = {
-                FileName = processFileName,
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true
-            }
+        private static ProcessStartInfo startInfo = new ProcessStartInfo {
+            FileName = processFileName,
+            CreateNoWindow = true,
+            UseShellExecute = false,
+            RedirectStandardOutput = true
         };
 
         public static int GetFrameCount(string workingDirectory, string path) {
@@ -21,6 +19,7 @@ namespace Xin1Generator {
             Trace.WriteLine(Path.GetFileName(path));
             Trace.Unindent();
 
+            var process = new Process { StartInfo = startInfo };
             process.StartInfo.Arguments = "-psh \"" + path + "\" 1 1 0";
             process.StartInfo.WorkingDirectory = workingDirectory;
             process.Start();

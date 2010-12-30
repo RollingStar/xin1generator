@@ -1,0 +1,54 @@
+﻿<Window x:Class="Xin1GeneratorGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:p="clr-namespace:Xin1GeneratorGUI.Properties"
+        Title="Xin1Generator" Height="384" Width="512" MinHeight="384" MinWidth="512" Closed="Window_Closed" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
+    <Grid>
+        <Label Content="Input path:" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="inputPathLabel" VerticalAlignment="Top" />
+        <TextBox Height="23" Margin="96,14,82,0" Name="inputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=InputPath}" TextChanged="inputPathTextBox_TextChanged" />
+        <Button Content="Browse..." Height="23" HorizontalAlignment="Right" Margin="0,14,12,0" Name="inputPathButton" VerticalAlignment="Top" Width="64" Click="inputPathButton_Click" />
+        <Label Content="Output path:" Height="28" HorizontalAlignment="Left" Margin="12,44,0,0" Name="outputPathLabel" VerticalAlignment="Top" />
+        <TextBox Height="23" Margin="96,46,82,0" Name="outputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=OutputPath}" TextChanged="outputPathTextBox_TextChanged" />
+        <Button Content="Browse..." Height="23" HorizontalAlignment="Right" Margin="0,46,12,0" Name="outputPathButton" VerticalAlignment="Top" Width="64" Click="outputPathButton_Click" />
+        <Label Content="Available titles:" Height="28" HorizontalAlignment="Left" Margin="12,78,0,0" Name="availableTitlesLabel" VerticalAlignment="Top" />
+        <ListView Margin="12,112,0,58" Name="availableTitlesListView" HorizontalAlignment="Left" Width="160" ItemsSource="{Binding Path=AvailableTitles}" SelectionChanged="availableTitlesListView_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Number}" />
+                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Length}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <Label Content="Selected titles:" Height="28" HorizontalAlignment="Left" Margin="178,78,0,0" Name="selectedTitlesLabel" VerticalAlignment="Top" />
+        <ListView Margin="178,112,12,58" Name="selectedTitlesListView" ItemsSource="{Binding Path=SelectedTitles}" SelectionChanged="selectedTitlesListView_SelectionChanged">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Number}" />
+                    <GridViewColumn Header="Name" Width="192">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=Name}"  />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <CheckBox Content="Demux tracks" Height="16" HorizontalAlignment="Right" Margin="0,83,108,0" Name="demuxTracksCheckBox" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=DemuxTracks}" />
+        <CheckBox Content="Hide chapters" Height="16" HorizontalAlignment="Right" Margin="0,83,12,0" Name="hideChaptersCheckBox" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=HideChapters}" />
+        <Button Content="Add" Height="23" HorizontalAlignment="Left" Margin="108,0,0,29" Name="addButton" VerticalAlignment="Bottom" Width="64" Click="addButton_Click" IsEnabled="False" />
+        <Button Content="Remove" Height="23" HorizontalAlignment="Left" Margin="178,0,0,29" Name="removeButton" VerticalAlignment="Bottom" Width="64" Click="removeButton_Click" IsEnabled="False" />
+        <Button Content="Clear" Height="23" HorizontalAlignment="Left" Margin="248,0,0,29" Name="clearButton" VerticalAlignment="Bottom" Width="64" Click="clearButton_Click" IsEnabled="False" />
+        <Button Content="Start" Height="23" HorizontalAlignment="Right" Margin="0,0,12,29" Name="startButton" VerticalAlignment="Bottom" Width="64" Click="startButton_Click" IsEnabled="False" />
+        <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom">
+            <StatusBarItem>
+                <TextBlock Name="statusBarTextBlock" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>

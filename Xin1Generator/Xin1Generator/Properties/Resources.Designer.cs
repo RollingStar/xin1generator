@@ -22,7 +22,7 @@ namespace Xin1Generator.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Xin1Generator.Properties {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Xin1Generator.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Xin1Generator.Properties {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Xin1Generator.Properties {
         /// <summary>
         ///   Looks up a localized string similar to Error: .
         /// </summary>
-        internal static string ErrorPrefix {
+        public static string ErrorPrefix {
             get {
                 return ResourceManager.GetString("ErrorPrefix", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace Xin1Generator.Properties {
         /// <summary>
         ///   Looks up a localized string similar to {0} v{1}.
         /// </summary>
-        internal static string NameAndVersionFormat {
+        public static string NameAndVersionFormat {
             get {
                 return ResourceManager.GetString("NameAndVersionFormat", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace Xin1Generator.Properties {
         /// -d   Demux tracks immediately instead of writing the command for it to a file.
         /// -h   Set chapters to hidden. Prevents overly long chapt [rest of string was truncated]&quot;;.
         /// </summary>
-        internal static string UsageText {
+        public static string UsageText {
             get {
                 return ResourceManager.GetString("UsageText", resourceCulture);
             }
