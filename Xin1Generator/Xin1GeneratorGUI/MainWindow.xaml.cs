@@ -13,20 +13,17 @@ using Xin1Generator;
 
 namespace Xin1GeneratorGUI {
     public partial class MainWindow : Window {
-        private const string chaptersName = "chapters.xml";
-        private const string tagsName = "tags.xml";
-        private const string qpfileName = "qpfile.txt";
-        private const string demuxName = "demux.cmd";
+        public ObservableCollection<Title> AvailableTitles { get; set; }
+        public ObservableCollection<Title> SelectedTitles { get; set; }
+        public ObservableCollection<Track> Tracks { get; set; }
 
-        public ObservableCollection<AvailableTitle> AvailableTitles { get; set; }
-        public ObservableCollection<SelectedTitle> SelectedTitles { get; set; }
-
-        private bool dependencyMissing = false;
-        private bool taskRunning = false;
+        private bool dependencyMissing;
+        private int tasksRunning;
 
         public MainWindow() {
-            AvailableTitles = new ObservableCollection<AvailableTitle>();
-            SelectedTitles = new ObservableCollection<SelectedTitle>();
+            AvailableTitles = new ObservableCollection<Title>();
+            SelectedTitles = new ObservableCollection<Title>();
+            Tracks = new ObservableCollection<Track>();
 
             InitializeComponent();
 
@@ -66,12 +63,48 @@ namespace Xin1GeneratorGUI {
         private void availableTitles_CollectionChanged(object sender,
                 NotifyCollectionChangedEventArgs e) {
             SelectedTitles.Clear();
+            Tracks.Clear();
         }
 
         private void selectedTitles_CollectionChanged(object sender,
                 NotifyCollectionChangedEventArgs e) {
             clearButton.IsEnabled = SelectedTitles.Count > 0;
             UpdateStartButton();
+
+            if (e.NewStartingIndex == 0 || e.OldStartingIndex == 0 ||
+                    e.Action == NotifyCollectionChangedAction.Reset) {
+                Tracks.Clear();
+
+                if (SelectedTitles.Count > 0) {
+                    tasksRunning++;
+                    UpdateStartButton();
+
+                    var worker = new BackgroundWorker();
+                    worker.DoWork += (s, args) => {
+                        args.Result =
+                            Eac3toWrapper.GetTracks(string.Empty, (string)args.Argument);
+                    };
+                    worker.RunWorkerCompleted += (s, args) => {
+                        if (args.Error != null) {
+                            Trace.WriteLine(Xin1Generator.Properties.Resources.ErrorPrefix +
+                                args.Error.Message);
+                            return;
+                        }
+
+                        var tracks = (List<Track>)args.Result;
+
+                        Trace.WriteLine("Found " + tracks.Count + " track" +
+                            (tracks.Count != 1 ? "s" : string.Empty));
+
+                        foreach (Track track in tracks)
+                            Tracks.Add(track);
+
+                        tasksRunning--;
+                        UpdateStartButton();
+                    };
+                    worker.RunWorkerAsync(SelectedTitles[0].Files[0]);
+                }
+            }
         }
 
         private void inputPathTextBox_TextChanged(object sender, TextChangedEventArgs e) {
@@ -83,18 +116,18 @@ namespace Xin1GeneratorGUI {
                 AvailableTitles.Clear();
 
                 if (args.Error != null) {
-                    Trace.WriteLine(
-                        Xin1Generator.Properties.Resources.ErrorPrefix + args.Error.Message);
+                    Trace.WriteLine(Xin1Generator.Properties.Resources.ErrorPrefix +
+                        args.Error.Message);
                     return;
                 }
 
-                var titles = (IDictionary<int, Title>)args.Result;
+                var titles = (List<Title>)args.Result;
 
                 Trace.WriteLine("Found " + titles.Count + " title" +
-                   (titles.Count != 1 ? "s" : string.Empty));
+                    (titles.Count != 1 ? "s" : string.Empty));
 
-                foreach (int number in titles.Keys)
-                    AvailableTitles.Add(new AvailableTitle(number, titles[number].Length));
+                foreach (Title title in titles)
+                    AvailableTitles.Add(title);
             };
             worker.RunWorkerAsync(inputPathTextBox.Text);
         }
@@ -128,14 +161,15 @@ namespace Xin1GeneratorGUI {
         }
 
         private void addButton_Click(object sender, RoutedEventArgs e) {
-            foreach (AvailableTitle title in availableTitlesListView.SelectedItems)
-                SelectedTitles.Add(new SelectedTitle(title.Number) {
-                    Name = "Edition " + (SelectedTitles.Count + 1) });
+            foreach (Title title in availableTitlesListView.SelectedItems)
+                SelectedTitles.Add(new Title(title) {
+                    Name = "Edition " + (SelectedTitles.Count + 1)
+                });
         }
 
         private void removeButton_Click(object sender, RoutedEventArgs e) {
             while (selectedTitlesListView.SelectedIndex >= 0)
-                SelectedTitles.Remove((SelectedTitle)selectedTitlesListView.SelectedItem);
+                SelectedTitles.Remove((Title)selectedTitlesListView.SelectedItem);
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e) {
@@ -143,30 +177,31 @@ namespace Xin1GeneratorGUI {
         }
 
         private void startButton_Click(object sender, RoutedEventArgs e) {
-            startButton.IsEnabled = !(taskRunning = true);
+            tasksRunning++;
+            UpdateStartButton();
 
             var p = new Xin1Generator.Parameters {
                 InputPath = inputPathTextBox.Text,
                 OutputPath = outputPathTextBox.Text,
-                DemuxTracks = (bool)demuxTracksCheckBox.IsChecked,
+                ExtractTracks = (bool)extractTracksCheckBox.IsChecked,
                 HideChapters = (bool)hideChaptersCheckBox.IsChecked
             };
 
-            p.TitleNumbers.AddRange(SelectedTitles.Select(x => x.Number));
-            p.TitleNames.AddRange(SelectedTitles.Select(x => x.Name));
+            p.Titles.AddRange(SelectedTitles);
+            p.Tracks.AddRange(Tracks.Where(x => x.IsUsed));
             
             var worker = new BackgroundWorker();
             worker.DoWork += (s, args) => {
                 var xin1Generator = new Xin1Generator.Xin1Generator(p);
                 xin1Generator.ExtractInfo();
-                xin1Generator.GenerateAll(chaptersName, tagsName, qpfileName, demuxName);
+                xin1Generator.GenerateAll();
             };
             worker.RunWorkerCompleted += (s, args) => {
                 Trace.WriteLine(args.Error != null ?
                     Xin1Generator.Properties.Resources.ErrorPrefix + args.Error.Message :
                     string.Empty);
 
-                taskRunning = false;
+                tasksRunning--;
                 UpdateStartButton();
             };
             worker.RunWorkerAsync();
@@ -178,7 +213,7 @@ namespace Xin1GeneratorGUI {
 
         private void UpdateStartButton() {
             if (startButton != null && inputPathTextBox != null && outputPathTextBox != null)
-                startButton.IsEnabled = !dependencyMissing && !taskRunning &&
+                startButton.IsEnabled = !dependencyMissing && tasksRunning == 0 &&
                     Directory.Exists(inputPathTextBox.Text) &&
                     Directory.Exists(outputPathTextBox.Text) && SelectedTitles.Count > 0;
         }

@@ -50,6 +50,7 @@
     <Compile Include="Title.cs" />
     <Compile Include="Eac3toWrapper.cs" />
     <Compile Include="ChaptersGenerator.cs" />
+    <Compile Include="Track.cs" />
     <Compile Include="Xin1Generator.cs" />
     <Compile Include="XportWrapper.cs" />
   </ItemGroup>

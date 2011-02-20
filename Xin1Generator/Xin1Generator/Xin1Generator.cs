@@ -6,7 +6,6 @@ using System.IO;
 namespace Xin1Generator {
     public class Xin1Generator {
         private Parameters p;
-
         private List<Title> titles = new List<Title>();
         private List<string> files = new List<string>();
         private List<int> frames = new List<int>() { 0 };
@@ -18,15 +17,16 @@ namespace Xin1Generator {
         public void ExtractInfo() {
             Trace.WriteLine("Extracting info...");
 
-            IDictionary<int, Title> allTitles = Eac3toWrapper.GetTitles(p.InputPath);
+            List<Title> availableTitles = Eac3toWrapper.GetTitles(p.InputPath);
             int offset = frames[0];
 
-            foreach (int titleNumber in p.TitleNumbers)
-                if (!allTitles.ContainsKey(titleNumber))
-                    throw new InvalidOperationException("Could not find title " + titleNumber);
+            foreach (Title selectedTitle in p.Titles)
+                if (!availableTitles.Exists(x => x.Number == selectedTitle.Number))
+                    throw new InvalidOperationException(
+                        "Could not find title " + selectedTitle.Number);
 
-            foreach (int titleNumber in p.TitleNumbers) {
-                Title title = allTitles[titleNumber];
+            foreach (Title selectedTitle in p.Titles) {
+                Title title = availableTitles.Find(x => x.Number == selectedTitle.Number);
                 titles.Add(title);
 
                 foreach (string file in title.Files) {
@@ -42,14 +42,13 @@ namespace Xin1Generator {
             }
         }
 
-        public void GenerateAll(string chaptersName, string tagsName,
-                string qpfileName, string demuxName) {
-            GenerateChaptersAndTags(chaptersName, tagsName);
-            GenerateQpfile(qpfileName);
-            GenerateTracksOrCommand(demuxName);
+        public void GenerateAll() {
+            GenerateChaptersAndTags();
+            GenerateQpfile();
+            GenerateTracksOrCommand();
         }
 
-        public void GenerateChaptersAndTags(string chaptersName, string tagsName) {
+        public void GenerateChaptersAndTags() {
             Trace.WriteLine("Generating chapters and tags...");
 
             var chaptersGenerator = new ChaptersGenerator(p.HideChapters);
@@ -66,31 +65,37 @@ namespace Xin1Generator {
                         TimeSpan.FromSeconds(frames[idx + 1] / title.FrameRate));
                 }
 
-                tagsGenerator.CreateTag(editionUID,
-                    p.TitleNames.Count > i ? p.TitleNames[i] : "Edition " + (i + 1));
+                tagsGenerator.CreateTag(editionUID, p.Titles[i].Name);
             }
 
-            chaptersGenerator.document.Save(Path.Combine(p.OutputPath, chaptersName));
-            tagsGenerator.document.Save(Path.Combine(p.OutputPath, tagsName));
+            chaptersGenerator.document.Save(Path.Combine(p.OutputPath, "chapters.xml"));
+            tagsGenerator.document.Save(Path.Combine(p.OutputPath, "tags.xml"));
         }
 
-        public void GenerateQpfile(string qpfileName) {
+        public void GenerateQpfile() {
             Trace.WriteLine("Generating qpfile...");
 
-            using (var sw = new StreamWriter(Path.Combine(p.OutputPath, qpfileName)))
+            using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "qpfile.txt")))
                 for (int i = 1; i < files.Count; i++) // We don't need the first and last frame
                     sw.WriteLine(frames[i] + " I"); // Format: <frame> <type>
         }
 
-        public void GenerateTracksOrCommand(string demuxName) {
-            Trace.WriteLine("Generating " + (p.DemuxTracks ? "tracks" : "command") + "...");
+        public void GenerateTracksOrCommand() {
+            Trace.WriteLine("Generating " + (p.ExtractTracks ? "tracks" : "command") + "...");
 
-            string arguments = "\"" + string.Join("\"+\"", files.ToArray()) + "\" -demux";
+            string arguments = "\"" + string.Join("\"+\"", files.ToArray()) + "\"";
 
-            if (p.DemuxTracks)
+            if (p.Tracks.Count > 0)
+                foreach (Track track in p.Tracks)
+                    arguments +=
+                        " " + track.Number + ":track" + track.Number + "." + track.Extension;
+            else
+                arguments += " -demux";
+
+            if (p.ExtractTracks)
                 Eac3toWrapper.WriteTracks(p.OutputPath, arguments);
             else
-                using (var sw = new StreamWriter(Path.Combine(p.OutputPath, demuxName)))
+                using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "demux.cmd")))
                     sw.Write(Eac3toWrapper.processFileName + " " + arguments);
         }
     }

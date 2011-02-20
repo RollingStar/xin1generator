@@ -15,7 +15,7 @@ namespace Xin1Generator {
             RedirectStandardOutput = true
         };
 
-        public static IDictionary<int, Title> GetTitles(string workingDirectory) {
+        public static List<Title> GetTitles(string workingDirectory) {
             var process = new Process { StartInfo = startInfo };
             process.StartInfo.Arguments = string.Empty;
             process.StartInfo.WorkingDirectory = workingDirectory;
@@ -23,7 +23,7 @@ namespace Xin1Generator {
             string output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
-            var titles = new Dictionary<int, Title>();
+            var titles = new List<Title>();
 
             MatchCollection titleMatches =
                 Regex.Matches(output, @"(\d+)\) (\d.+?(?:\n[\s\b]*\n|.$))", RegexOptions.Singleline);
@@ -36,28 +36,51 @@ namespace Xin1Generator {
                 Match frameRateMatch =
                     Regex.Match(titleMatch.Groups[2].Value, @"([pi])(\d+)(?: \/(\d+\.\d+))?");
 
-                title.Length = lengthMatch.Value;
-
                 string ext = filesMatch.Groups[1].Value;
                 string files =
                     filesMatch.Value.Replace(ext, string.Empty).Trim(new[] { '[', ']' });
-
-                foreach (string file in files.Split('+'))
-                    title.Files.Add(Path.Combine(workingDirectory,
-                        "BDMV", "STREAM", int.Parse(file).ToString("D5") + ext));
-
                 int num = int.Parse(frameRateMatch.Groups[2].Value);
                 double den = 1;
                 double.TryParse(frameRateMatch.Groups[3].Value,
                     NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out den);
 
-                // Treat 2 fields as 1 frame (does this actually work?)
-                title.FrameRate = num / den * (frameRateMatch.Groups[1].Value == "i" ? 2 : 1);
+                title.Number = int.Parse(titleMatch.Groups[1].Value);
+                title.Length = lengthMatch.Value;
+                title.FrameRate = num / den / (frameRateMatch.Groups[1].Value == "i" ? 2 : 1);
 
-                titles.Add(int.Parse(titleMatch.Groups[1].Value), title);
+                foreach (string file in files.Split('+'))
+                    title.Files.Add(Path.Combine(workingDirectory,
+                        "BDMV", "STREAM", int.Parse(file).ToString("D5") + ext));
+
+                titles.Add(title);
             }
 
             return titles;
+        }
+
+        public static List<Track> GetTracks(string workingDirectory, string arguments) {
+            var process = new Process { StartInfo = startInfo };
+            process.StartInfo.Arguments = arguments;
+            process.StartInfo.WorkingDirectory = workingDirectory;
+            process.Start();
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+
+            var tracks = new List<Track>();
+
+            MatchCollection trackMatches =
+                Regex.Matches(output, @"(\d+): (.+?), ([A-Z][a-z]+)?");
+
+            foreach (Match trackMatch in trackMatches)
+                tracks.Add(
+                    new Track() {
+                        Number = int.Parse(trackMatch.Groups[1].Value),
+                        Format = trackMatch.Groups[2].Value,
+                        Language = trackMatch.Groups[3].Value
+                    }
+                );
+
+            return tracks;
         }
 
         public static void WriteTracks(string workingDirectory, string arguments) {
