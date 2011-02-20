@@ -2,25 +2,25 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:p="clr-namespace:Xin1GeneratorGUI.Properties"
-        Title="Xin1Generator" Height="384" Width="512" MinHeight="384" MinWidth="512" Closed="Window_Closed" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
+        Title="Xin1Generator" Height="448" Width="768" MinHeight="384" MinWidth="768" Closed="Window_Closed" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
     <Grid>
         <Label Content="Input path:" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="inputPathLabel" VerticalAlignment="Top" />
-        <TextBox Height="23" Margin="96,14,82,0" Name="inputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=InputPath}" TextChanged="inputPathTextBox_TextChanged" />
+        <TextBox Height="23" Margin="96,14,82,0" Name="inputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=InputPath}" TextChanged="inputPathTextBox_TextChanged" ToolTip="Path to Blu-ray source disc. Use the root, not any sub-directories (e.g. BDMV)." />
         <Button Content="Browse..." Height="23" HorizontalAlignment="Right" Margin="0,14,12,0" Name="inputPathButton" VerticalAlignment="Top" Width="64" Click="inputPathButton_Click" />
         <Label Content="Output path:" Height="28" HorizontalAlignment="Left" Margin="12,44,0,0" Name="outputPathLabel" VerticalAlignment="Top" />
-        <TextBox Height="23" Margin="96,46,82,0" Name="outputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=OutputPath}" TextChanged="outputPathTextBox_TextChanged" />
+        <TextBox Height="23" Margin="96,46,82,0" Name="outputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=OutputPath}" TextChanged="outputPathTextBox_TextChanged" ToolTip="Path to destination directory." />
         <Button Content="Browse..." Height="23" HorizontalAlignment="Right" Margin="0,46,12,0" Name="outputPathButton" VerticalAlignment="Top" Width="64" Click="outputPathButton_Click" />
         <Label Content="Available titles:" Height="28" HorizontalAlignment="Left" Margin="12,78,0,0" Name="availableTitlesLabel" VerticalAlignment="Top" />
         <ListView Margin="12,112,0,58" Name="availableTitlesListView" HorizontalAlignment="Left" Width="160" ItemsSource="{Binding Path=AvailableTitles}" SelectionChanged="availableTitlesListView_SelectionChanged">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Number}" />
-                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Length}" />
+                    <GridViewColumn Header="#" DisplayMemberBinding="{Binding Path=Number}" Width="20" />
+                    <GridViewColumn Header="Length" DisplayMemberBinding="{Binding Path=Length}" Width="56" />
                 </GridView>
             </ListView.View>
         </ListView>
         <Label Content="Selected titles:" Height="28" HorizontalAlignment="Left" Margin="178,78,0,0" Name="selectedTitlesLabel" VerticalAlignment="Top" />
-        <ListView Margin="178,112,12,58" Name="selectedTitlesListView" ItemsSource="{Binding Path=SelectedTitles}" SelectionChanged="selectedTitlesListView_SelectionChanged">
+        <ListView Margin="178,112,0,58" Name="selectedTitlesListView" ItemsSource="{Binding Path=SelectedTitles}" SelectionChanged="selectedTitlesListView_SelectionChanged" HorizontalAlignment="Left" Width="224">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -28,19 +28,48 @@
             </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Title" DisplayMemberBinding="{Binding Path=Number}" />
-                    <GridViewColumn Header="Name" Width="192">
+                    <GridViewColumn Header="#" DisplayMemberBinding="{Binding Path=Number}" Width="20" />
+                    <GridViewColumn Header="Name" Width="176">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBox Text="{Binding Path=Name}"  />
+                                <TextBox Text="{Binding Path=Name}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
-        <CheckBox Content="Demux tracks" Height="16" HorizontalAlignment="Right" Margin="0,83,108,0" Name="demuxTracksCheckBox" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=DemuxTracks}" />
-        <CheckBox Content="Hide chapters" Height="16" HorizontalAlignment="Right" Margin="0,83,12,0" Name="hideChaptersCheckBox" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=HideChapters}" />
+        <Label Content="Tracks:" Height="28" HorizontalAlignment="Left" Margin="408,78,0,0" Name="label1" VerticalAlignment="Top" />
+        <ListView ItemsSource="{Binding Path=Tracks}" Margin="408,112,12,58" Name="tracksListView">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Control.HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="28">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox IsChecked="{Binding Path=IsUsed}" ToolTip="Uncheck all tracks to use eac3to's -demux command." />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="#" DisplayMemberBinding="{Binding Path=Number}" Width="28" />
+                    <GridViewColumn Header="Format" DisplayMemberBinding="{Binding Path=Format}" Width="108" />
+                    <GridViewColumn Header="Language" DisplayMemberBinding="{Binding Path=Language}" Width="72" />
+                    <GridViewColumn Header="Extension" Width="64">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Path=Extension}" ToolTip="Use * to select an appropriate extension automatically. Track-specific eac3to options, such as -core, can be appended here." />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <CheckBox Content="Extract tracks" Height="16" HorizontalAlignment="Right" Margin="0,83,108,0" Name="extractTracksCheckBox" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=ExtractTracks}" ToolTip="Extract tracks immediately instead of writing the command for it to a file." />
+        <CheckBox Content="Hide chapters" Height="16" HorizontalAlignment="Right" Margin="0,83,12,0" Name="hideChaptersCheckBox" VerticalAlignment="Top" IsChecked="{Binding Source={x:Static p:Settings.Default}, Path=HideChapters}" ToolTip="Set chapters to hidden. Prevents overly long chapter lists." />
         <Button Content="Add" Height="23" HorizontalAlignment="Left" Margin="108,0,0,29" Name="addButton" VerticalAlignment="Bottom" Width="64" Click="addButton_Click" IsEnabled="False" />
         <Button Content="Remove" Height="23" HorizontalAlignment="Left" Margin="178,0,0,29" Name="removeButton" VerticalAlignment="Bottom" Width="64" Click="removeButton_Click" IsEnabled="False" />
         <Button Content="Clear" Height="23" HorizontalAlignment="Left" Margin="248,0,0,29" Name="clearButton" VerticalAlignment="Bottom" Width="64" Click="clearButton_Click" IsEnabled="False" />

@@ -2,10 +2,10 @@
 
 namespace Xin1Generator {
     public class Parameters {
-        public readonly List<int> TitleNumbers = new List<int>();
-        public readonly List<string> TitleNames = new List<string>();
+        public readonly List<Title> Titles = new List<Title>();
+        public readonly List<Track> Tracks = new List<Track>();
         public string InputPath, OutputPath;
-        public bool DemuxTracks = false;
+        public bool ExtractTracks = false;
         public bool HideChapters = false;
     }
 }

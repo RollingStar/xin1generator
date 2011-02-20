@@ -8,11 +8,6 @@ using System.Reflection;
 
 namespace Xin1Generator {
     class Program {
-        private const string chaptersName = "chapters.xml";
-        private const string tagsName = "tags.xml";
-        private const string qpfileName = "qpfile.txt";
-        private const string demuxName = "demux.cmd";
-
         public static void Main(string[] args) {
             Trace.Listeners.Add(new ConsoleTraceListener());
             Trace.IndentSize = 1;
@@ -36,6 +31,9 @@ namespace Xin1Generator {
                     }
                 }
 
+                var titleNumbers = new List<int>();
+                var titleNames = new List<String>();
+
                 var p = new Parameters {
                     InputPath = Directory.GetCurrentDirectory(),
                     OutputPath = Directory.GetCurrentDirectory()
@@ -45,11 +43,11 @@ namespace Xin1Generator {
                     try {
                         switch (args[i]) {
                             case "-t":
-                                p.TitleNumbers.AddRange(args[++i].Split(',')
+                                titleNumbers.AddRange(args[++i].Split(',')
                                     .Select(x => int.Parse(x)));
                                 break;
                             case "-n":
-                                p.TitleNames.AddRange(args[++i].Split(','));
+                                titleNames.AddRange(args[++i].Split(','));
                                 break;
                             case "-i":
                                 p.InputPath = args[++i];
@@ -58,7 +56,7 @@ namespace Xin1Generator {
                                 p.OutputPath = args[++i];
                                 break;
                             case "-d":
-                                p.DemuxTracks = true;
+                                p.ExtractTracks = true;
                                 break;
                             case "-h":
                                 p.HideChapters = true;
@@ -73,7 +71,13 @@ namespace Xin1Generator {
                     }
                 }
 
-                if (p.TitleNumbers.Count == 0)
+                for (int i = 0; i < titleNumbers.Count; i++)
+                    p.Titles.Add(new Title() {
+                        Number = titleNumbers[i],
+                        Name = i < titleNames.Count ? titleNames[i] : "Edition " + (i + 1)
+                    });
+
+                if (p.Titles.Count == 0)
                     throw new ParameterException("Title numbers not specified");
 
                 foreach (string dir in new[] { p.InputPath, p.OutputPath })
@@ -85,7 +89,7 @@ namespace Xin1Generator {
 
                 var xin1Generator = new Xin1Generator(p);
                 xin1Generator.ExtractInfo();
-                xin1Generator.GenerateAll(chaptersName, tagsName, qpfileName, demuxName);
+                xin1Generator.GenerateAll();
             } catch (ParameterException e) {
                 Console.WriteLine();
                 Console.WriteLine(Properties.Resources.ErrorPrefix + e.Message);
