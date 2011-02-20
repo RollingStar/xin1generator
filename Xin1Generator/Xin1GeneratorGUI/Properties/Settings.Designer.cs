@@ -49,19 +49,19 @@ namespace Xin1GeneratorGUI.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool DemuxTracks {
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ExtractTracks {
             get {
-                return ((bool)(this["DemuxTracks"]));
+                return ((bool)(this["ExtractTracks"]));
             }
             set {
-                this["DemuxTracks"] = value;
+                this["ExtractTracks"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool HideChapters {
             get {
                 return ((bool)(this["HideChapters"]));
