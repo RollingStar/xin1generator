@@ -6,7 +6,7 @@ namespace Xin1Generator {
         private const string timeFormat = @"hh\:mm\:ss\.fff";
 
         public XDocument document { get; private set; }
-        private XElement root, currentEdition;
+        private XElement currentEdition;
         private Random random = new Random();
         private bool hideChapters;
 
@@ -14,7 +14,7 @@ namespace Xin1Generator {
             document =
                 new XDocument(
                     new XDocumentType("Chapters", null, "matroskachapters.dtd", null),
-                    root = new XElement("Chapters"));
+                    new XElement("Chapters"));
 
             this.hideChapters = hideChapters;
         }
@@ -22,11 +22,11 @@ namespace Xin1Generator {
         public int CreateEdition() {
             int editionUID = random.Next();
 
-            root.Add(currentEdition =
+            document.Root.Add(currentEdition =
                 new XElement("EditionEntry",
                     new XElement("EditionUID", editionUID),
                     new XElement("EditionFlagHidden", 0),
-                    new XElement("EditionFlagDefault", root.HasElements ? 0 : 1),
+                    new XElement("EditionFlagDefault", document.Root.HasElements ? 0 : 1),
                     new XElement("EditionFlagOrdered", 1)));
 
             return editionUID;

@@ -12,10 +12,8 @@ namespace Xin1GeneratorGUI {
         }
 
         public override void Write(string message) {
-            if (message.Trim().Length == 0)
-                return;
-
-            WriteTextBlockText(message);
+            if (message.Trim().Length != 0)
+                WriteTextBlockText(message);
         }
 
         public override void WriteLine(string message) {
