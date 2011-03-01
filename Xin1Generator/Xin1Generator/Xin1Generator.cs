@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 
@@ -97,6 +98,22 @@ namespace Xin1Generator {
             else
                 using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "demux.cmd")))
                     sw.Write(Eac3toWrapper.processFileName + " " + arguments);
+        }
+
+        public static void CheckDependencies() {
+            foreach (string dependency in new[] { "eac3to", "xport" }) {
+                try {
+                    new Process {
+                        StartInfo = {
+                            FileName = dependency,
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        }
+                    }.Start();
+                } catch (Win32Exception e) {
+                    throw new InvalidOperationException(e.Message + ": " + dependency);
+                }
+            }
         }
     }
 }
