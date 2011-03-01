@@ -5,7 +5,7 @@ namespace Xin1Generator {
         public readonly List<Title> Titles = new List<Title>();
         public readonly List<Track> Tracks = new List<Track>();
         public string InputPath, OutputPath;
-        public bool ExtractTracks = false;
-        public bool HideChapters = false;
+        public bool ExtractTracks;
+        public bool HideChapters;
     }
 }
