@@ -31,83 +31,67 @@ namespace Xin1GeneratorGUI {
             Title = string.Format(Xin1Generator.Properties.Resources.NameAndVersionFormat,
                 assemblyName.Name, assemblyName.Version.ToString(2));
 
+            var worker = new BackgroundWorker();
+            worker.DoWork += (s, args) => {
+                Xin1Generator.Xin1Generator.CheckDependencies();
+            };
+            worker.RunWorkerCompleted += (s, args) => {
+                if (args.Error != null) {
+                    Title += " - " + (Xin1Generator.Properties.Resources.ErrorPrefix +
+                        args.Error.Message).ToUpper();
+
+                    dependencyMissing = true;
+                }
+            };
+            worker.RunWorkerAsync();
+
             Trace.Listeners.Add(new TextBlockTraceListener(statusBarTextBlock));
 
-            AvailableTitles.CollectionChanged +=
-                new NotifyCollectionChangedEventHandler(availableTitles_CollectionChanged);
             SelectedTitles.CollectionChanged +=
-                new NotifyCollectionChangedEventHandler(selectedTitles_CollectionChanged);
-
-            try {
-                foreach (string dependency in new[] { "eac3to", "xport" }) {
-                    try {
-                        new Process {
-                            StartInfo = {
-                                FileName = dependency,
-                                UseShellExecute = false,
-                                CreateNoWindow = true
-                            }
-                        }.Start();
-                    } catch (Win32Exception) {
-                        throw new InvalidOperationException("Could not find " + dependency);
-                    }
-                }
-            } catch (InvalidOperationException e) {
-                dependencyMissing = true;
-
-                Title += " - " +
-                    (Xin1Generator.Properties.Resources.ErrorPrefix + e.Message).ToUpper();
-            }
+                new NotifyCollectionChangedEventHandler(SelectedTitles_CollectionChanged);
         }
 
-        private void availableTitles_CollectionChanged(object sender,
-                NotifyCollectionChangedEventArgs e) {
-            SelectedTitles.Clear();
-            Tracks.Clear();
-        }
-
-        private void selectedTitles_CollectionChanged(object sender,
+        private void SelectedTitles_CollectionChanged(object sender,
                 NotifyCollectionChangedEventArgs e) {
             clearButton.IsEnabled = SelectedTitles.Count > 0;
-            UpdateStartButton();
 
-            if (e.NewStartingIndex == 0 || e.OldStartingIndex == 0 ||
-                    e.Action == NotifyCollectionChangedAction.Reset) {
-                Tracks.Clear();
+            if (e.NewStartingIndex + e.OldStartingIndex >= 0)
+                return;
 
-                if (SelectedTitles.Count > 0) {
-                    tasksRunning++;
-                    UpdateStartButton();
+            UpdateStartButton(++tasksRunning);
 
-                    var worker = new BackgroundWorker();
-                    worker.DoWork += (s, args) => {
-                        args.Result =
-                            Eac3toWrapper.GetTracks(string.Empty, (string)args.Argument);
-                    };
-                    worker.RunWorkerCompleted += (s, args) => {
-                        if (args.Error != null) {
-                            Trace.WriteLine(Xin1Generator.Properties.Resources.ErrorPrefix +
-                                args.Error.Message);
-                            return;
-                        }
+            var worker = new BackgroundWorker();
+            worker.DoWork += (s, args) => {
+                args.Result = Eac3toWrapper.GetTracks(string.Empty, SelectedTitles[0].Files[0]);
+            };
+            worker.RunWorkerCompleted += (s, args) => {
+                if (Tracks.Count > 0)
+                    Tracks.Clear();
 
-                        var tracks = (List<Track>)args.Result;
+                if (SelectedTitles.Count == 0) {
+                    Trace.WriteLine(string.Empty);
+                } else if (args.Error != null) {
+                    Trace.WriteLine(
+                        Xin1Generator.Properties.Resources.ErrorPrefix + args.Error.Message);
+                } else {
+                    var tracks = (List<Track>)args.Result;
 
-                        Trace.WriteLine("Found " + tracks.Count + " track" +
-                            (tracks.Count != 1 ? "s" : string.Empty));
+                    foreach (Track track in tracks)
+                        Tracks.Add(track);
 
-                        foreach (Track track in tracks)
-                            Tracks.Add(track);
-
-                        tasksRunning--;
-                        UpdateStartButton();
-                    };
-                    worker.RunWorkerAsync(SelectedTitles[0].Files[0]);
+                    Trace.WriteLine("Found " + tracks.Count + " track" +
+                        (tracks.Count != 1 ? "s" : string.Empty));
                 }
-            }
+
+                UpdateStartButton(--tasksRunning);
+            };
+            worker.RunWorkerAsync();
         }
 
         private void inputPathTextBox_TextChanged(object sender, TextChangedEventArgs e) {
+            if (SelectedTitles.Count > 0)
+                SelectedTitles.Clear();
+
             var worker = new BackgroundWorker();
             worker.DoWork += (s, args) => {
                 args.Result = Eac3toWrapper.GetTitles((string)args.Argument);
@@ -116,24 +100,23 @@ namespace Xin1GeneratorGUI {
                 AvailableTitles.Clear();
 
                 if (args.Error != null) {
-                    Trace.WriteLine(Xin1Generator.Properties.Resources.ErrorPrefix +
-                        args.Error.Message);
-                    return;
+                    Trace.WriteLine(
+                        Xin1Generator.Properties.Resources.ErrorPrefix + args.Error.Message);
+                } else {
+                    var titles = (List<Title>)args.Result;
+
+                    foreach (Title title in titles)
+                        AvailableTitles.Add(title);
+
+                    Trace.WriteLine("Found " + titles.Count + " title" +
+                        (titles.Count != 1 ? "s" : string.Empty));
                 }
-
-                var titles = (List<Title>)args.Result;
-
-                Trace.WriteLine("Found " + titles.Count + " title" +
-                    (titles.Count != 1 ? "s" : string.Empty));
-
-                foreach (Title title in titles)
-                    AvailableTitles.Add(title);
             };
             worker.RunWorkerAsync(inputPathTextBox.Text);
         }
 
         private void outputPathTextBox_TextChanged(object sender, TextChangedEventArgs e) {
-            UpdateStartButton();
+            UpdateStartButton(tasksRunning);
         }
 
         private void inputPathButton_Click(object sender, RoutedEventArgs e) {
@@ -168,8 +151,11 @@ namespace Xin1GeneratorGUI {
         }
 
         private void removeButton_Click(object sender, RoutedEventArgs e) {
-            while (selectedTitlesListView.SelectedIndex >= 0)
-                SelectedTitles.Remove((Title)selectedTitlesListView.SelectedItem);
+            var titles = new Title[selectedTitlesListView.SelectedItems.Count];
+            selectedTitlesListView.SelectedItems.CopyTo(titles, 0);
+
+            for (int i = titles.Length - 1; i >= 0; i--)
+                SelectedTitles.Remove(titles[i]);
         }
 
         private void clearButton_Click(object sender, RoutedEventArgs e) {
@@ -177,8 +163,7 @@ namespace Xin1GeneratorGUI {
         }
 
         private void startButton_Click(object sender, RoutedEventArgs e) {
-            tasksRunning++;
-            UpdateStartButton();
+            UpdateStartButton(++tasksRunning);
 
             var p = new Xin1Generator.Parameters {
                 InputPath = inputPathTextBox.Text,
@@ -199,10 +184,9 @@ namespace Xin1GeneratorGUI {
             worker.RunWorkerCompleted += (s, args) => {
                 Trace.WriteLine(args.Error != null ?
                     Xin1Generator.Properties.Resources.ErrorPrefix + args.Error.Message :
-                    string.Empty);
+                    "Completed succesfully");
 
-                tasksRunning--;
-                UpdateStartButton();
+                UpdateStartButton(--tasksRunning);
             };
             worker.RunWorkerAsync();
         }
@@ -211,11 +195,13 @@ namespace Xin1GeneratorGUI {
             Properties.Settings.Default.Save();
         }
 
-        private void UpdateStartButton() {
-            if (startButton != null && inputPathTextBox != null && outputPathTextBox != null)
-                startButton.IsEnabled = !dependencyMissing && tasksRunning == 0 &&
+        private void UpdateStartButton(int tasksRunning) {
+            if (startButton != null && inputPathTextBox != null && outputPathTextBox != null) {
+                startButton.Content = tasksRunning == 0 ? "Start" : "Working...";
+                startButton.IsEnabled = tasksRunning == 0 && !dependencyMissing &&
                     Directory.Exists(inputPathTextBox.Text) &&
                     Directory.Exists(outputPathTextBox.Text) && SelectedTitles.Count > 0;
+            }
         }
     }
 }

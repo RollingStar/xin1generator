@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -17,21 +16,8 @@ namespace Xin1Generator {
                 assemblyName.Name, assemblyName.Version.ToString(2));
 
             try {
-                foreach (string dependency in new[] { "eac3to", "xport" }) {
-                    try {
-                        new Process {
-                            StartInfo = {
-                                FileName = dependency,
-                                UseShellExecute = false,
-                                CreateNoWindow = true
-                            }
-                        }.Start();
-                    } catch (Win32Exception e) {
-                        throw new InvalidOperationException(e.Message + ": " + dependency);
-                    }
-                }
+                Xin1Generator.CheckDependencies();
 
-                var titleNumbers = new List<int>();
                 var titleNames = new List<String>();
 
                 var p = new Parameters {
@@ -43,8 +29,8 @@ namespace Xin1Generator {
                     try {
                         switch (args[i]) {
                             case "-t":
-                                titleNumbers.AddRange(args[++i].Split(',')
-                                    .Select(x => int.Parse(x)));
+                                p.Titles.AddRange(args[++i].Split(',')
+                                    .Select(x => new Title() { Number = int.Parse(x) }));
                                 break;
                             case "-n":
                                 titleNames.AddRange(args[++i].Split(','));
@@ -71,19 +57,16 @@ namespace Xin1Generator {
                     }
                 }
 
-                for (int i = 0; i < titleNumbers.Count; i++)
-                    p.Titles.Add(new Title() {
-                        Number = titleNumbers[i],
-                        Name = i < titleNames.Count ? titleNames[i] : "Edition " + (i + 1)
-                    });
+                for (int i = 0; i < p.Titles.Count; i++)
+                    p.Titles[i].Name =
+                        i < titleNames.Count ? titleNames[i] : "Edition " + (i + 1);
 
                 if (p.Titles.Count == 0)
                     throw new ParameterException("Title numbers not specified");
 
                 foreach (string dir in new[] { p.InputPath, p.OutputPath })
                     if (!Directory.Exists(dir))
-                        throw new DirectoryNotFoundException(
-                            "Could not find directory " + dir);
+                        throw new DirectoryNotFoundException("Could not find directory " + dir);
 
                 Console.WriteLine();
 
