@@ -96,7 +96,7 @@ namespace Xin1Generator {
             if (p.ExtractTracks)
                 Eac3toWrapper.WriteTracks(p.OutputPath, arguments);
             else
-                using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "demux.cmd")))
+                using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "extract.cmd")))
                     sw.Write(Eac3toWrapper.processFileName + " " + arguments);
         }
 
