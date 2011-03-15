@@ -26,6 +26,7 @@ namespace Xin1GeneratorGUI {
             Tracks = new ObservableCollection<Track>();
 
             InitializeComponent();
+            UpdateStartButton(tasksRunning);
 
             AssemblyName assemblyName = typeof(Xin1Generator.Xin1Generator).Assembly.GetName();
             Title = string.Format(Xin1Generator.Properties.Resources.NameAndVersionFormat,
@@ -92,6 +93,8 @@ namespace Xin1GeneratorGUI {
             if (SelectedTitles.Count > 0)
                 SelectedTitles.Clear();
 
+            UpdateStartButton(++tasksRunning);
+
             var worker = new BackgroundWorker();
             worker.DoWork += (s, args) => {
                 args.Result = Eac3toWrapper.GetTitles((string)args.Argument);
@@ -110,6 +113,8 @@ namespace Xin1GeneratorGUI {
 
                     Trace.WriteLine("Found " + titles.Count + " title" +
                         (titles.Count != 1 ? "s" : string.Empty));
+
+                    UpdateStartButton(--tasksRunning);
                 }
             };
             worker.RunWorkerAsync(inputPathTextBox.Text);
