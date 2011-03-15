@@ -14,21 +14,20 @@ namespace Xin1Generator {
             RedirectStandardOutput = true
         };
 
-        public static int GetFrameCount(string workingDirectory, string path) {
+        public static int GetFrameCount(string path) {
             Trace.Indent();
             Trace.WriteLine(Path.GetFileName(path));
             Trace.Unindent();
 
             var process = new Process { StartInfo = startInfo };
             process.StartInfo.Arguments = "-psh \"" + path + "\" 1 1 0";
-            process.StartInfo.WorkingDirectory = workingDirectory;
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
             process.WaitForExit();
 
             Match frameCountMatch = Regex.Match(output, @"coded pictures = (\d+)");
 
-            if (string.IsNullOrEmpty(frameCountMatch.Value))
+            if (!frameCountMatch.Success)
                 throw new InvalidOperationException(
                     "Could not determine frame count of " + path);
 

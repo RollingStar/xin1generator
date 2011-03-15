@@ -62,7 +62,7 @@ namespace Xin1GeneratorGUI {
 
             var worker = new BackgroundWorker();
             worker.DoWork += (s, args) => {
-                args.Result = Eac3toWrapper.GetTracks(string.Empty, SelectedTitles[0].Files[0]);
+                args.Result = Eac3toWrapper.GetTracks(SelectedTitles[0].Files[0]);
             };
             worker.RunWorkerCompleted += (s, args) => {
                 if (Tracks.Count > 0)
@@ -146,7 +146,7 @@ namespace Xin1GeneratorGUI {
         private void addButton_Click(object sender, RoutedEventArgs e) {
             foreach (Title title in availableTitlesListView.SelectedItems)
                 SelectedTitles.Add(new Title(title) {
-                    Name = "Edition " + (SelectedTitles.Count + 1)
+                    Name = title.Name ?? "Edition " + (SelectedTitles.Count + 1)
                 });
         }
 

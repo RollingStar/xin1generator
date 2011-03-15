@@ -38,7 +38,8 @@ namespace Xin1Generator {
                         throw new FileNotFoundException("Could not find file " + file);
 
                     files.Add(file);
-                    frames.Add(offset += XportWrapper.GetFrameCount(p.OutputPath, file));
+                    frames.Add(offset += title.IsBluray ?
+                        XportWrapper.GetFrameCount(file) : Eac3toWrapper.GetFrameCount(file));
                 }
             }
         }
