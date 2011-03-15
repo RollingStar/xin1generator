@@ -21,13 +21,13 @@ namespace Xin1Generator {
             List<Title> availableTitles = Eac3toWrapper.GetTitles(p.InputPath);
             int offset = frames[0];
 
-            foreach (Title selectedTitle in p.Titles)
-                if (!availableTitles.Exists(x => x.Number == selectedTitle.Number))
+            foreach (Title selectedTitle in p.Titles) {
+                Title title = availableTitles.Find(x => x.Number == selectedTitle.Number);
+
+                if (title == null)
                     throw new InvalidOperationException(
                         "Could not find title " + selectedTitle.Number);
 
-            foreach (Title selectedTitle in p.Titles) {
-                Title title = availableTitles.Find(x => x.Number == selectedTitle.Number);
                 titles.Add(title);
 
                 foreach (string file in title.Files) {
