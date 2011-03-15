@@ -17,10 +17,6 @@ namespace Xin1Generator {
         };
 
         public static int GetFrameCount(string path) {
-            Trace.Indent();
-            Trace.WriteLine(Path.GetFileName(path));
-            Trace.Unindent();
-
             var process = new Process { StartInfo = startInfo };
             process.StartInfo.Arguments = "\"" + path + "\" -check";
             process.StartInfo.WorkingDirectory = string.Empty;
