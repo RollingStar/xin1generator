@@ -5,7 +5,7 @@
         Title="Xin1Generator" Height="448" Width="672" MinHeight="384" MinWidth="672" Closed="Window_Closed" DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
     <Grid>
         <Label Content="Input path:" Height="28" HorizontalAlignment="Left" Margin="12,12,0,0" Name="inputPathLabel" VerticalAlignment="Top" />
-        <TextBox Height="23" Margin="96,14,82,0" Name="inputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=InputPath}" TextChanged="inputPathTextBox_TextChanged" ToolTip="Path to Blu-ray source disc. Use the root, not any sub-directories (e.g. BDMV)." />
+        <TextBox Height="23" Margin="96,14,82,0" Name="inputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=InputPath}" TextChanged="inputPathTextBox_TextChanged" ToolTip="Path to Blu-ray/HD DVD source disc. Use the root, not any sub-directories (e.g. BDMV)." />
         <Button Content="Browse..." Height="23" HorizontalAlignment="Right" Margin="0,14,12,0" Name="inputPathButton" VerticalAlignment="Top" Width="64" Click="inputPathButton_Click" />
         <Label Content="Output path:" Height="28" HorizontalAlignment="Left" Margin="12,44,0,0" Name="outputPathLabel" VerticalAlignment="Top" />
         <TextBox Height="23" Margin="96,46,82,0" Name="outputPathTextBox" VerticalAlignment="Top" Text="{Binding Source={x:Static p:Settings.Default}, Path=OutputPath}" TextChanged="outputPathTextBox_TextChanged" ToolTip="Path to destination directory." />

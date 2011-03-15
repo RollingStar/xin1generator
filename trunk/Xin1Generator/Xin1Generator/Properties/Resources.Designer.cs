@@ -85,10 +85,10 @@ namespace Xin1Generator.Properties {
         ///Parameters:
         /// -t   Comma-separated list of title numbers as shown by eac3to. Example: 2,1.
         /// -n   Comma-seperated list of title names. Example: &quot;Edition 1,Edition 2&quot;.
-        /// -i   Path to Blu-ray source disc. Default: current directory.
+        /// -i   Path to root of Blu-ray/HD DVD source disc. Default: current directory.
         /// -o   Path to destination directory. Default: current directory.
         /// -d   Demux tracks immediately instead of writing the command for it to a file.
-        /// -h   Set chapters to hidden. Prevents overly long chapt [rest of string was truncated]&quot;;.
+        /// -h   Set chapters to hidden. Prevents ov [rest of string was truncated]&quot;;.
         /// </summary>
         public static string UsageText {
             get {
