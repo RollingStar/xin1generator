@@ -44,8 +44,8 @@ namespace Xin1Generator {
                             case "-d":
                                 p.ExtractTracks = true;
                                 break;
-                            case "-h":
-                                p.HideChapters = true;
+                            case "-p":
+                                p.PreserveChapters = true;
                                 break;
                             default:
                                 throw new ParameterException(
@@ -71,7 +71,7 @@ namespace Xin1Generator {
                 Console.WriteLine();
 
                 var xin1Generator = new Xin1Generator(p);
-                xin1Generator.ExtractInfo();
+                xin1Generator.ExtractAll();
                 xin1Generator.GenerateAll();
             } catch (ParameterException e) {
                 Console.WriteLine();

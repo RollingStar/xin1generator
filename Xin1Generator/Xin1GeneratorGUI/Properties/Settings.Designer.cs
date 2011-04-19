@@ -62,12 +62,12 @@ namespace Xin1GeneratorGUI.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool HideChapters {
+        public bool PreserveChapters {
             get {
-                return ((bool)(this["HideChapters"]));
+                return ((bool)(this["PreserveChapters"]));
             }
             set {
-                this["HideChapters"] = value;
+                this["PreserveChapters"] = value;
             }
         }
     }

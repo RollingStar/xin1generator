@@ -105,8 +105,13 @@ namespace Xin1Generator {
         }
 
         public static List<Track> GetTracks(string path) {
+            return GetTracks(path, 0);
+        }
+
+        public static List<Track> GetTracks(string path, int titleNumber) {
             var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = "\"" + path + "\"";
+            process.StartInfo.Arguments = "\"" + path + "\"" +
+                (titleNumber > 0 ? " " + titleNumber + ")" : string.Empty);
             process.StartInfo.WorkingDirectory = string.Empty;
             process.Start();
             string output = process.StandardOutput.ReadToEnd();
@@ -138,7 +143,7 @@ namespace Xin1Generator {
 
             Trace.Indent();
 
-            while (!string.IsNullOrEmpty(line = process.StandardOutput.ReadLine())) {
+            while ((line = process.StandardOutput.ReadLine()) != null) {
                 if (!line.EndsWith("%"))
                     continue;
 

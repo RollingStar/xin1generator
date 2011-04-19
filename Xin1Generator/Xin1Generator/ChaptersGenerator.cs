@@ -8,15 +8,12 @@ namespace Xin1Generator {
         public XDocument document { get; private set; }
         private XElement currentEdition;
         private Random random = new Random();
-        private bool hideChapters;
 
-        public ChaptersGenerator(bool hideChapters) {
+        public ChaptersGenerator() {
             document =
                 new XDocument(
                     new XDocumentType("Chapters", null, "matroskachapters.dtd", null),
                     new XElement("Chapters"));
-
-            this.hideChapters = hideChapters;
         }
 
         public int CreateEdition() {
@@ -32,13 +29,13 @@ namespace Xin1Generator {
             return editionUID;
         }
 
-        public void CreateChapter(TimeSpan start, TimeSpan end) {
+        public void CreateChapter(TimeSpan start, TimeSpan end, bool hideChapter) {
             currentEdition.Add(
                 new XElement("ChapterAtom",
                     new XElement("ChapterUID", random.Next()),
                     new XElement("ChapterTimeStart", start.ToString(timeFormat)),
                     new XElement("ChapterTimeEnd", end.ToString(timeFormat)),
-                    new XElement("ChapterFlagHidden", hideChapters ? 1 : 0),
+                    new XElement("ChapterFlagHidden", hideChapter ? 1 : 0),
                     new XElement("ChapterFlagEnabled", 1)));
         }
     }
