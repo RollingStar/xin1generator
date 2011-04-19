@@ -6,6 +6,6 @@ namespace Xin1Generator {
         public readonly List<Track> Tracks = new List<Track>();
         public string InputPath, OutputPath;
         public bool ExtractTracks;
-        public bool HideChapters;
+        public bool PreserveChapters;
     }
 }

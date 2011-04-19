@@ -133,6 +133,6 @@ Parameters:
  -i   Path to root of Blu-ray/HD DVD source disc. Default: current directory.
  -o   Path to destination directory. Default: current directory.
  -d   Demux tracks immediately instead of writing the command for it to a file.
- -h   Set chapters to hidden. Prevents overly long chapter lists.</value>
+ -p   Preserve original chapters by merging them with the generated chapters.</value>
   </data>
 </root>

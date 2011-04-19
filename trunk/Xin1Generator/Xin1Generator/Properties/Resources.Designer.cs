@@ -88,7 +88,7 @@ namespace Xin1Generator.Properties {
         /// -i   Path to root of Blu-ray/HD DVD source disc. Default: current directory.
         /// -o   Path to destination directory. Default: current directory.
         /// -d   Demux tracks immediately instead of writing the command for it to a file.
-        /// -h   Set chapters to hidden. Prevents ov [rest of string was truncated]&quot;;.
+        /// -p   Preserve original chapters by mergi [rest of string was truncated]&quot;;.
         /// </summary>
         public static string UsageText {
             get {

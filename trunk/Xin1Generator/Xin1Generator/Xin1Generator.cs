@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Xin1Generator {
     public class Xin1Generator {
@@ -13,6 +14,13 @@ namespace Xin1Generator {
 
         public Xin1Generator(Parameters p) {
             this.p = p;
+        }
+
+        public void ExtractAll() {
+            ExtractInfo();
+
+            if (p.PreserveChapters)
+                ExtractChapters();
         }
 
         public void ExtractInfo() {
@@ -53,6 +61,35 @@ namespace Xin1Generator {
             }
         }
 
+        public void ExtractChapters() {
+            Trace.WriteLine("Extracting chapters...");
+
+            foreach (Title title in titles) {
+                List<Track> tracks = Eac3toWrapper.GetTracks(p.InputPath, title.Number);
+                Track chaptersTrack = tracks.Find(x => x.Format.Contains("Chapters"));
+
+                if (chaptersTrack == null)
+                    continue;
+
+                string tempFile = Path.GetTempFileName();
+                Eac3toWrapper.WriteTracks(p.InputPath,
+                    title.Number + ") " + chaptersTrack.Number + ":\"" + tempFile + "\"");
+
+                using (var sr = new StreamReader(tempFile)) {
+                    string line;
+
+                    while ((line = sr.ReadLine()) != null) {
+                        Match match = Regex.Match(line, @"CHAPTER\d{2}=(.+)");
+
+                        if (match.Success)
+                            title.Chapters.Add(TimeSpan.Parse(match.Groups[1].Value));
+                    }
+                }
+
+                File.Delete(tempFile);
+            }
+        }
+
         public void GenerateAll() {
             GenerateChaptersAndTags();
             GenerateQpfile();
@@ -62,18 +99,35 @@ namespace Xin1Generator {
         public void GenerateChaptersAndTags() {
             Trace.WriteLine("Generating chapters and tags...");
 
-            var chaptersGenerator = new ChaptersGenerator(p.HideChapters);
+            var chaptersGenerator = new ChaptersGenerator();
             var tagsGenerator = new TagsGenerator();
 
             for (int i = 0; i < titles.Count; i++) {
                 Title title = titles[i];
+                var virtualOffset = new TimeSpan(0);
+                bool hideNext = !p.PreserveChapters;
                 int editionUID = chaptersGenerator.CreateEdition();
 
                 foreach (string file in title.Files) {
                     int idx = files.IndexOf(file);
-                    chaptersGenerator.CreateChapter(
-                        TimeSpan.FromSeconds(frames[idx] / title.FrameRate),
-                        TimeSpan.FromSeconds(frames[idx + 1] / title.FrameRate));
+                    TimeSpan start = TimeSpan.FromSeconds(frames[idx] / title.FrameRate);
+                    TimeSpan end = TimeSpan.FromSeconds(frames[idx + 1] / title.FrameRate);
+                    TimeSpan nextStart = start;
+
+                    foreach (TimeSpan virtualStart in title.Chapters.FindAll(x =>
+                            x > virtualOffset && x <= virtualOffset + end - start)) {
+                        chaptersGenerator.CreateChapter(nextStart,
+                            nextStart = start + virtualStart - virtualOffset, hideNext);
+                        hideNext = false;
+                    }
+
+                    virtualOffset += end - start;
+
+                    if (nextStart == end)
+                        continue;
+
+                    chaptersGenerator.CreateChapter(nextStart, end, hideNext);
+                    hideNext = true;
                 }
 
                 tagsGenerator.CreateTag(editionUID, p.Titles[i].Name);

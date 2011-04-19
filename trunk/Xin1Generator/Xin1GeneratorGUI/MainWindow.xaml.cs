@@ -174,7 +174,7 @@ namespace Xin1GeneratorGUI {
                 InputPath = inputPathTextBox.Text,
                 OutputPath = outputPathTextBox.Text,
                 ExtractTracks = (bool)extractTracksCheckBox.IsChecked,
-                HideChapters = (bool)hideChaptersCheckBox.IsChecked
+                PreserveChapters = (bool)preserveChaptersCheckBox.IsChecked
             };
 
             p.Titles.AddRange(SelectedTitles);
@@ -183,7 +183,7 @@ namespace Xin1GeneratorGUI {
             var worker = new BackgroundWorker();
             worker.DoWork += (s, args) => {
                 var xin1Generator = new Xin1Generator.Xin1Generator(p);
-                xin1Generator.ExtractInfo();
+                xin1Generator.ExtractAll();
                 xin1Generator.GenerateAll();
             };
             worker.RunWorkerCompleted += (s, args) => {
