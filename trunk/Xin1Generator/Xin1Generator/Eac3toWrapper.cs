@@ -45,7 +45,7 @@ namespace Xin1Generator {
             var titles = new List<Title>();
 
             MatchCollection titleMatches = Regex.Matches(output,
-                @"(\d+)\) (\d+\.mpls, )?(.+?(?:\n[\s\b]*\n|.$))", RegexOptions.Singleline);
+                @"(\d+)\) (\d+\.mpls.*?, )?(.+?(?:\n[\s\b]*\n|.$))", RegexOptions.Singleline);
 
             foreach (Match titleMatch in titleMatches) {
                 var title = new Title();
