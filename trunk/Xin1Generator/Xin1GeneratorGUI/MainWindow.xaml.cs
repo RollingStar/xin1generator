@@ -90,6 +90,8 @@ namespace Xin1GeneratorGUI {
         }
 
         private void inputPathTextBox_TextChanged(object sender, TextChangedEventArgs e) {
+            AvailableTitles.Clear();
+
             if (SelectedTitles.Count > 0)
                 SelectedTitles.Clear();
 
@@ -100,8 +102,6 @@ namespace Xin1GeneratorGUI {
                 args.Result = Eac3toWrapper.GetTitles((string)args.Argument);
             };
             worker.RunWorkerCompleted += (s, args) => {
-                AvailableTitles.Clear();
-
                 if (args.Error != null) {
                     Trace.WriteLine(
                         Xin1Generator.Properties.Resources.ErrorPrefix + args.Error.Message);
