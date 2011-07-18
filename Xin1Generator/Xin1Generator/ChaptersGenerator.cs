@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace Xin1Generator {
@@ -30,13 +31,21 @@ namespace Xin1Generator {
         }
 
         public void CreateChapter(TimeSpan start, TimeSpan end, bool hideChapter) {
-            currentEdition.Add(
+            XElement chapter;
+
+            currentEdition.Add(chapter =
                 new XElement("ChapterAtom",
                     new XElement("ChapterUID", random.Next()),
                     new XElement("ChapterTimeStart", start.ToString(timeFormat)),
                     new XElement("ChapterTimeEnd", end.ToString(timeFormat)),
                     new XElement("ChapterFlagHidden", hideChapter ? 1 : 0),
                     new XElement("ChapterFlagEnabled", 1)));
+
+            if (!hideChapter)
+                chapter.Add(
+                    new XElement("ChapterDisplay",
+                        new XElement("ChapterString", string.Empty),
+                        new XElement("ChapterLanguage", "eng")));
         }
     }
 }
