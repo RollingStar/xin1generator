@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -141,7 +140,7 @@ namespace Xin1Generator {
             Trace.WriteLine("Generating qpfile...");
 
             using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "qpfile.txt")))
-                for (int i = 1; i < files.Count; i++) // We don't need the first and last frame
+                for (int i = 1; i < frames.Count - 1; i++) // We don't need the first/last frame
                     sw.WriteLine(frames[i] + " I"); // Format: <frame> <type>
         }
 
@@ -162,22 +161,6 @@ namespace Xin1Generator {
             else
                 using (var sw = new StreamWriter(Path.Combine(p.OutputPath, "extract.cmd")))
                     sw.Write(Eac3toWrapper.processFileName + " " + arguments);
-        }
-
-        public static void CheckDependencies() {
-            foreach (string dependency in new[] { "eac3to", "xport" }) {
-                try {
-                    new Process {
-                        StartInfo = {
-                            FileName = dependency,
-                            UseShellExecute = false,
-                            CreateNoWindow = true
-                        }
-                    }.Start();
-                } catch (Win32Exception e) {
-                    throw new InvalidOperationException(e.Message + ": " + dependency);
-                }
-            }
         }
     }
 }

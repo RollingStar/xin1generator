@@ -9,20 +9,25 @@ namespace Xin1Generator {
     public static class Eac3toWrapper {
         public const string processFileName = "eac3to";
 
-        private static ProcessStartInfo startInfo = new ProcessStartInfo {
-            FileName = processFileName,
-            CreateNoWindow = true,
-            UseShellExecute = false,
-            RedirectStandardOutput = true
-        };
+        private static ProcessStartInfo GetStartInfo() {
+            return new ProcessStartInfo {
+                FileName = processFileName,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+        }
 
         public static int GetFrameCount(string path) {
-            var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = "\"" + path + "\" -check";
-            process.StartInfo.WorkingDirectory = string.Empty;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
+            string output;
+
+            using (var process = new Process { StartInfo = GetStartInfo() }) {
+                process.StartInfo.Arguments = "\"" + path + "\" -check";
+                process.StartInfo.WorkingDirectory = string.Empty;
+                process.Start();
+                output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+            }
 
             Match frameCountMatch =
                 Regex.Match(output, @"Video track \d+ contains (\d+) frames\.");
@@ -35,12 +40,15 @@ namespace Xin1Generator {
         }
 
         public static List<Title> GetTitles(string path) {
-            var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = "\"" + path + "\"";
-            process.StartInfo.WorkingDirectory = string.Empty;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
+            string output;
+
+            using (var process = new Process { StartInfo = GetStartInfo() }) {
+                process.StartInfo.Arguments = "\"" + path + "\"";
+                process.StartInfo.WorkingDirectory = string.Empty;
+                process.Start();
+                output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+            }
 
             var titles = new List<Title>();
 
@@ -87,12 +95,15 @@ namespace Xin1Generator {
         }
 
         private static Match GetFrameRateMatch(string path, int titleNumber) {
-            var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = "\"" + path + "\" " + titleNumber + ")";
-            process.StartInfo.WorkingDirectory = string.Empty;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
+            string output;
+
+            using (var process = new Process { StartInfo = GetStartInfo() }) {
+                process.StartInfo.Arguments = "\"" + path + "\" " + titleNumber + ")";
+                process.StartInfo.WorkingDirectory = string.Empty;
+                process.Start();
+                output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+            }
 
             Match frameRateMatch =
                 Regex.Match(output, @"([pi])(\d+)(?: \/(\d+\.\d+))?", RegexOptions.Singleline);
@@ -109,13 +120,16 @@ namespace Xin1Generator {
         }
 
         public static List<Track> GetTracks(string path, int titleNumber) {
-            var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = "\"" + path + "\"" +
-                (titleNumber > 0 ? " " + titleNumber + ")" : string.Empty);
-            process.StartInfo.WorkingDirectory = string.Empty;
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
+            string output;
+
+            using (var process = new Process { StartInfo = GetStartInfo() }) {
+                process.StartInfo.Arguments = "\"" + path + "\"" +
+                    (titleNumber > 0 ? " " + titleNumber + ")" : string.Empty);
+                process.StartInfo.WorkingDirectory = string.Empty;
+                process.Start();
+                output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+            }
 
             var tracks = new List<Track>();
 
@@ -133,34 +147,35 @@ namespace Xin1Generator {
         }
 
         public static void WriteTracks(string workingDirectory, string arguments) {
-            var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = arguments + " -progressnumbers";
-            process.StartInfo.WorkingDirectory = workingDirectory;
-            process.Start();
+            using (var process = new Process { StartInfo = GetStartInfo() }) {
+                process.StartInfo.Arguments = arguments + " -progressnumbers";
+                process.StartInfo.WorkingDirectory = workingDirectory;
+                process.Start();
 
-            string line;
-            bool isAnalyzing = true;
+                string line;
+                bool isAnalyzing = true;
 
-            Trace.Indent();
+                Trace.Indent();
 
-            while ((line = process.StandardOutput.ReadLine()) != null) {
-                if (!line.EndsWith("%"))
-                    continue;
+                while ((line = process.StandardOutput.ReadLine()) != null) {
+                    if (!line.EndsWith("%"))
+                        continue;
 
-                // Add newline after analyzing
-                if (isAnalyzing != (isAnalyzing = line.StartsWith("analyze")))
-                    Trace.WriteLine(string.Empty);
+                    // Add newline after analyzing
+                    if (isAnalyzing != (isAnalyzing = line.StartsWith("analyze")))
+                        Trace.WriteLine(string.Empty);
 
-                // Overwrite current line
-                Trace.Write('\r' + new string(' ', Trace.IndentSize));
-                Trace.Write((isAnalyzing ? "Analyzing" : "Processing") + ": " +
-                    line.Substring(line.IndexOf(' ') + 1));
+                    // Overwrite current line
+                    Trace.Write('\r' + new string(' ', Trace.IndentSize));
+                    Trace.Write((isAnalyzing ? "Analyzing" : "Processing") + ": " +
+                        line.Substring(line.IndexOf(' ') + 1));
+                }
+
+                Trace.WriteLine(string.Empty);
+                Trace.Unindent();
+
+                process.WaitForExit();
             }
-
-            Trace.WriteLine(string.Empty);
-            Trace.Unindent();
-
-            process.WaitForExit();
         }
     }
 }

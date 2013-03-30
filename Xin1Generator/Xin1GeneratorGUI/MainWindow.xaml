@@ -73,7 +73,7 @@
         <Button Content="Add" Height="23" HorizontalAlignment="Left" Margin="52,0,0,29" Name="addButton" VerticalAlignment="Bottom" Width="64" Click="addButton_Click" IsEnabled="False" />
         <Button Content="Remove" Height="23" HorizontalAlignment="Left" Margin="122,0,0,29" Name="removeButton" VerticalAlignment="Bottom" Width="64" Click="removeButton_Click" IsEnabled="False" />
         <Button Content="Clear" Height="23" HorizontalAlignment="Left" Margin="192,0,0,29" Name="clearButton" VerticalAlignment="Bottom" Width="64" Click="clearButton_Click" IsEnabled="False" />
-        <Button Content="Start" Height="23" HorizontalAlignment="Right" Margin="0,0,12,29" Name="startButton" VerticalAlignment="Bottom" Width="64" Click="startButton_Click" IsEnabled="False" />
+        <Button Content="Start" Height="23" HorizontalAlignment="Right" Margin="0,0,12,29" Name="startStopButton" VerticalAlignment="Bottom" Width="64" Click="startStopButton_Click" IsEnabled="False" />
         <StatusBar Name="statusBar" Height="23" VerticalAlignment="Bottom">
             <StatusBarItem>
                 <TextBlock Name="statusBarTextBlock" />
