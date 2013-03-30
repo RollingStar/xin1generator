@@ -12,12 +12,13 @@ namespace Xin1Generator {
             Trace.IndentSize = 1;
 
             AssemblyName assemblyName = Assembly.GetExecutingAssembly().GetName();
-            Console.WriteLine(Properties.Resources.NameAndVersionFormat,
-                assemblyName.Name, assemblyName.Version.ToString(2));
+            Trace.WriteLine(string.Format(Properties.Resources.NameAndVersionFormat,
+                assemblyName.Name, assemblyName.Version.ToString(2)));
 
             try {
-                Xin1Generator.CheckDependencies();
+                Utilities.CheckDependencies();
 
+                var titleNumbers = new List<int>();
                 var titleNames = new List<String>();
 
                 var p = new Parameters {
@@ -29,8 +30,8 @@ namespace Xin1Generator {
                     try {
                         switch (args[i]) {
                             case "-t":
-                                p.Titles.AddRange(args[++i].Split(',')
-                                    .Select(x => new Title() { Number = int.Parse(x) }));
+                                titleNumbers.AddRange(args[++i].Split(',')
+                                    .Select(x => int.Parse(x)));
                                 break;
                             case "-n":
                                 titleNames.AddRange(args[++i].Split(','));
@@ -57,36 +58,41 @@ namespace Xin1Generator {
                     }
                 }
 
-                for (int i = 0; i < p.Titles.Count; i++)
-                    p.Titles[i].Name =
-                        i < titleNames.Count ? titleNames[i] : "Edition " + (i + 1);
-
-                if (p.Titles.Count == 0)
+                if (titleNumbers.Count == 0)
                     throw new ParameterException("Title numbers not specified");
+
+                if (titleNames.Count > 0 && titleNames.Count != titleNumbers.Count)
+                    throw new ParameterException("Incorrect number of title names");
+
+                for (int i = 0; i < titleNumbers.Count; i++)
+                    p.Titles.Add(new Title() {
+                        Number = titleNumbers[i],
+                        Name = titleNames.Count > 0 ? titleNames[i] : "Edition " + (i + 1)
+                    });
 
                 foreach (string dir in new[] { p.InputPath, p.OutputPath })
                     if (!Directory.Exists(dir))
                         throw new DirectoryNotFoundException("Could not find directory " + dir);
 
-                Console.WriteLine();
+                Trace.WriteLine(string.Empty);
 
                 var xin1Generator = new Xin1Generator(p);
                 xin1Generator.ExtractAll();
                 xin1Generator.GenerateAll();
             } catch (ParameterException e) {
-                Console.WriteLine();
-                Console.WriteLine(Properties.Resources.ErrorPrefix + e.Message);
-                Console.WriteLine();
+                Trace.WriteLine(string.Empty);
+                Trace.WriteLine(string.Format(Properties.Resources.ErrorMessage, e.Message));
+                Trace.WriteLine(string.Empty);
                 PrintUsage();
             } catch (Exception e) {
-                Console.WriteLine();
-                Console.WriteLine(Properties.Resources.ErrorPrefix + e.Message);
+                Trace.WriteLine(string.Empty);
+                Trace.WriteLine(string.Format(Properties.Resources.ErrorMessage, e.Message));
             }
         }
 
         public static void PrintUsage() {
-            Console.WriteLine(Properties.Resources.UsageText,
-                Environment.GetCommandLineArgs()[0]);
+            Trace.WriteLine(string.Format(
+                Properties.Resources.UsageText, Environment.GetCommandLineArgs()[0]));
         }
     }
 }

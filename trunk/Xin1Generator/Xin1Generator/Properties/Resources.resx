@@ -117,8 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ErrorPrefix" xml:space="preserve">
-    <value>Error: </value>
+  <data name="ErrorMessage" xml:space="preserve">
+    <value>Error: {0}</value>
   </data>
   <data name="NameAndVersionFormat" xml:space="preserve">
     <value>{0} v{1}</value>

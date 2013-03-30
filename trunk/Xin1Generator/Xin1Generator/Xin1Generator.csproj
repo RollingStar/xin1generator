@@ -12,6 +12,10 @@
     <AssemblyName>Xin1Generator</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <SccProjectName>Svn</SccProjectName>
+    <SccLocalPath>Svn</SccLocalPath>
+    <SccAuxPath>Svn</SccAuxPath>
+    <SccProvider>SubversionScc</SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -51,6 +55,7 @@
     <Compile Include="Eac3toWrapper.cs" />
     <Compile Include="ChaptersGenerator.cs" />
     <Compile Include="Track.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="Xin1Generator.cs" />
     <Compile Include="XportWrapper.cs" />
   </ItemGroup>

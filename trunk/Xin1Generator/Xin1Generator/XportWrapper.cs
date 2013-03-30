@@ -7,19 +7,24 @@ namespace Xin1Generator {
     static class XportWrapper {
         public const string processFileName = "xport";
 
-        private static ProcessStartInfo startInfo = new ProcessStartInfo {
-            FileName = processFileName,
-            CreateNoWindow = true,
-            UseShellExecute = false,
-            RedirectStandardOutput = true
-        };
+        private static ProcessStartInfo GetStartInfo() {
+            return new ProcessStartInfo {
+                FileName = processFileName,
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardOutput = true
+            };
+        }
 
         public static int GetFrameCount(string path) {
-            var process = new Process { StartInfo = startInfo };
-            process.StartInfo.Arguments = "-psh \"" + path + "\" 1 1 0";
-            process.Start();
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
+            string output;
+
+            using (var process = new Process { StartInfo = GetStartInfo() }) {
+                process.StartInfo.Arguments = "-psh \"" + path + "\" 1 1 0";
+                process.Start();
+                output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
+            }
 
             Match frameCountMatch = Regex.Match(output, @"coded pictures = (\d+)");
 
