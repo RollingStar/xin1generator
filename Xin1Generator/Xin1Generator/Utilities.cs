@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 
 namespace Xin1Generator {
     public class Utilities {
@@ -18,6 +19,10 @@ namespace Xin1Generator {
                     throw new InvalidOperationException(e.Message + ": " + dependencyFileName);
                 }
             }
+        }
+
+        public static bool IsBluray(string path) {
+            return Directory.Exists(Path.Combine(path, "BDMV"));
         }
     }
 }
