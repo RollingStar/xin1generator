@@ -61,7 +61,7 @@ namespace Xin1Generator {
                     "[" + (i + 1) + "/" + files.Count + "] " + Path.GetFileName(files[i]));
                 Trace.Unindent();
 
-                frames.Add(offset += titles[0].IsBluray ?
+                frames.Add(offset += Utilities.IsBluray(p.InputPath) ?
                     XportWrapper.GetFrameCount(files[i]) :
                     Eac3toWrapper.GetFrameCount(files[i]));
             }

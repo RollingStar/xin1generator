@@ -53,18 +53,17 @@ namespace Xin1Generator {
             var titles = new List<Title>();
 
             MatchCollection titleMatches = Regex.Matches(output,
-                @"(\d+)\) (\d+\.mpls.*?, )?(.+?(?:\n[\s\b]*\n|.$))", RegexOptions.Singleline);
+                @"(\d+)\) (?:\d+\.mpls.*?, )?(.+?(?:\n[\s\b]*\n|.$))", RegexOptions.Singleline);
 
             foreach (Match titleMatch in titleMatches) {
                 var title = new Title();
 
-                Match lengthMatch = Regex.Match(titleMatch.Groups[3].Value, @"(?:\d+\:){2}\d+");
-                Match nameMatch = Regex.Match(titleMatch.Groups[3].Value, @"""(\w+)""");
-                Match filesMatch = Regex.Match(titleMatch.Groups[3].Value, @"\S+(\.\w+)");
+                Match lengthMatch = Regex.Match(titleMatch.Groups[2].Value, @"(?:\d+\:){2}\d+");
+                Match nameMatch = Regex.Match(titleMatch.Groups[2].Value, @"""(\w+)""");
+                Match filesMatch = Regex.Match(titleMatch.Groups[2].Value, @"\S+(\.\w+)");
                 Match frameRateMatch =
-                    Regex.Match(titleMatch.Groups[3].Value, @"([pi])(\d+)(?: \/(\d+\.\d+))?");
+                    Regex.Match(titleMatch.Groups[2].Value, @"([pi])(\d+)(?: \/(\d+\.\d+))?");
 
-                title.IsBluray = titleMatch.Groups[2].Success;
                 title.Number = int.Parse(titleMatch.Groups[1].Value);
                 title.Name = !nameMatch.Success ? null :
                     Regex.Replace(nameMatch.Groups[1].Value, @"([a-z])([A-Z0-9])", "$1 $2");
@@ -84,7 +83,7 @@ namespace Xin1Generator {
                     filesMatch.Value.Replace(ext, string.Empty).Trim(new[] { '[', ']' });
 
                 foreach (string file in files.Split('+'))
-                    title.Files.Add(Path.Combine(path, title.IsBluray ?
+                    title.Files.Add(Path.Combine(path, Utilities.IsBluray(path) ?
                         Path.Combine("BDMV", "STREAM", int.Parse(file).ToString("D5")) :
                         Path.Combine("HVDVD_TS", file)) + ext);
 
