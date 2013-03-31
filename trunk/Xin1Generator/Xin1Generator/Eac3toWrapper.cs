@@ -72,11 +72,16 @@ namespace Xin1Generator {
                 if (!frameRateMatch.Success)
                     frameRateMatch = GetFrameRateMatch(path, title.Number);
 
-                title.FrameRate = int.Parse(frameRateMatch.Groups[2].Value) /
-                    (frameRateMatch.Groups[3].Success ?
+                title.FrameRate = int.Parse(frameRateMatch.Groups[2].Value);
+
+                if (frameRateMatch.Groups[3].Success) {
+                    title.FrameRate /=
                         double.Parse(frameRateMatch.Groups[3].Value,
-                            NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture) : 1) /
-                    (frameRateMatch.Groups[1].Value == "i" ? 2 : 1);
+                            NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture);
+                    
+                    if (frameRateMatch.Groups[1].Value == "i")
+                        title.FrameRate /= 2;
+                }
 
                 string ext = filesMatch.Groups[1].Value;
                 string files =
