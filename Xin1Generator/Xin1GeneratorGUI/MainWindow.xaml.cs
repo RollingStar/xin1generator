@@ -192,7 +192,6 @@ namespace Xin1GeneratorGUI {
             using (worker = new AbortableBackgroundWorker()) {
                 worker.DoWork += (s, args) => {
                     var xin1Generator = new Xin1Generator.Xin1Generator(p);
-                    xin1Generator.ExtractAll();
                     xin1Generator.GenerateAll();
                 };
                 worker.RunWorkerCompleted += (s, args) => {

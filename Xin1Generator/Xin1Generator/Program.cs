@@ -77,7 +77,6 @@ namespace Xin1Generator {
                 Trace.WriteLine(string.Empty);
 
                 var xin1Generator = new Xin1Generator(p);
-                xin1Generator.ExtractAll();
                 xin1Generator.GenerateAll();
             } catch (ParameterException e) {
                 Trace.WriteLine(string.Empty);

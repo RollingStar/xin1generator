@@ -10,16 +10,23 @@ namespace Xin1Generator {
         private List<Title> titles = new List<Title>();
         private List<string> files = new List<string>();
         private List<int> frames = new List<int>() { 0 };
+        private bool hasInfo;
 
         public Xin1Generator(Parameters p) {
             this.p = p;
         }
 
-        public void ExtractAll() {
-            ExtractInfo();
+        public void GenerateAll() {
+            if (!hasInfo) {
+                ExtractInfo();
 
-            if (p.PreserveChapters)
-                ExtractChapters();
+                if (p.PreserveChapters)
+                    ExtractChapters();
+            }
+
+            GenerateChaptersAndTags();
+            GenerateQpfile();
+            GenerateTracksOrCommand();
         }
 
         public void ExtractInfo() {
@@ -58,6 +65,8 @@ namespace Xin1Generator {
                     XportWrapper.GetFrameCount(files[i]) :
                     Eac3toWrapper.GetFrameCount(files[i]));
             }
+
+            hasInfo = true;
         }
 
         public void ExtractChapters() {
@@ -87,12 +96,6 @@ namespace Xin1Generator {
 
                 File.Delete(tempFile);
             }
-        }
-
-        public void GenerateAll() {
-            GenerateChaptersAndTags();
-            GenerateQpfile();
-            GenerateTracksOrCommand();
         }
 
         public void GenerateChaptersAndTags() {
