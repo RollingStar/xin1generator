@@ -1,0 +1,3 @@
+**Xin1Generator** is an application that simplifies generating Matroska files from seamlessly branched Blu-ray and HD DVD titles. To get started, grab the latest version from the Downloads tab and check out the [Usage](Usage.md) page. File an issue if the program doesn't work correctly, and don't hesitate to contact the project owner for patches, suggestions and compliments.
+
+![https://i.imgur.com/fKZzD9L.png](https://i.imgur.com/fKZzD9L.png)
